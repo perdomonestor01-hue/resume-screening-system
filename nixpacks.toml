@@ -1,0 +1,13 @@
+# Nixpacks configuration for Railway deployment
+
+[phases.setup]
+nixPkgs = ['nodejs_18', 'python3']
+
+[phases.install]
+cmds = ['npm ci']
+
+[phases.build]
+cmds = ['npm run init-db || true']
+
+[start]
+cmd = 'node server.js'
