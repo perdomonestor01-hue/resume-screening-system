@@ -1,0 +1,14 @@
+node_modules/
+*.log
+server.pid
+.env
+.DS_Store
+uploads/*.pdf
+uploads/*.docx
+uploads/*.doc
+uploads/*.txt
+uploads/*.jpg
+uploads/*.jpeg
+uploads/*.png
+!uploads/.gitkeep
+resume_screening.db

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candidate Dashboard - Custom Workforce Solutions</title>
+  <meta name="description" content="View and manage candidate applications for Custom Workforce Solutions.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-brand">
+        <h1>Custom Workforce Solutions</h1>
+        <p class="tagline">Your Trusted Partner for Light Industrial Staffing Solutions!</p>
+      </div>
+      <div class="nav-links">
+        <a href="/">Upload</a>
+        <a href="/dashboard.html" class="active">Dashboard</a>
+        <a href="/jobs.html">Jobs</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="dashboard-header">
+      <h2>Candidate Dashboard</h2>
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <div class="stat-value" id="totalCandidates">-</div>
+          <div class="stat-label">Total Candidates</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="highMatches">-</div>
+          <div class="stat-label">High Matches (70%+)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="activeJobs">-</div>
+          <div class="stat-label">Active Jobs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="avgScore">-</div>
+          <div class="stat-label">Average Match Score</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filters-section">
+      <input type="text" id="searchInput" placeholder="Search by name, email..." class="search-input">
+      <select id="sortSelect" class="filter-select">
+        <option value="score_desc">Highest Match First</option>
+        <option value="score_asc">Lowest Match First</option>
+        <option value="date_desc">Newest First</option>
+        <option value="date_asc">Oldest First</option>
+      </select>
+    </div>
+
+    <div id="candidatesLoading" class="loading">Loading candidates...</div>
+    <div id="candidatesContainer"></div>
+    <div id="candidateModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <div id="modalContent"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-branding">
+        <h3>Custom Workforce Solutions</h3>
+        <p>Your Trusted Partner for Light Industrial Staffing Solutions</p>
+      </div>
+      <a href="mailto:recruiting@customworkforcesolutions.com" class="footer-email">
+        recruiting@customworkforcesolutions.com
+      </a>
+      <p class="footer-powered">
+        Powered by Fabien P / AI Resume Screening Technology
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    let allCandidates = [];
+
+    // Load dashboard data
+    async function loadDashboard() {
+      try {
+        // Load stats
+        const statsRes = await fetch('/api/stats');
+        const stats = await statsRes.json();
+        displayStats(stats);
+
+        // Load candidates
+        const candidatesRes = await fetch('/api/candidates');
+        allCandidates = await candidatesRes.json();
+        displayCandidates(allCandidates);
+
+        document.getElementById('candidatesLoading').style.display = 'none';
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+        document.getElementById('candidatesLoading').innerHTML =
+          '<p class="error">❌ Error loading data. Please refresh the page.</p>';
+      }
+    }
+
+    function displayStats(stats) {
+      document.getElementById('totalCandidates').textContent = stats.total_candidates || 0;
+      document.getElementById('highMatches').textContent = stats.high_matches || 0;
+      document.getElementById('activeJobs').textContent = stats.active_jobs || 0;
+      document.getElementById('avgScore').textContent = (stats.average_score || 0) + '%';
+    }
+
+    function displayCandidates(candidates) {
+      const container = document.getElementById('candidatesContainer');
+
+      if (candidates.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <h3>No candidates yet</h3>
+            <p>Upload a resume or wait for email submissions to get started.</p>
+            <a href="/" class="btn btn-primary">Upload Resume</a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = candidates.map(candidate => `
+        <div class="candidate-card" onclick="viewCandidate(${candidate.id})">
+          <div class="candidate-header">
+            <div>
+              <h3>${candidate.name || 'Unknown Candidate'}</h3>
+              <p class="candidate-meta">
+                ${candidate.email || 'No email'}
+                ${candidate.phone ? '• ' + candidate.phone : ''}
+              </p>
+              <p class="candidate-meta small">
+                Source: ${candidate.source === 'email' ? '📧 Email' : '🌐 Web Upload'} •
+                Applied: ${new Date(candidate.created_at).toLocaleDateString()}
+              </p>
+            </div>
+            <div class="score-badge score-${getScoreLevel(candidate.best_match_score || 0)}">
+              ${candidate.best_match_score || 0}%
+            </div>
+          </div>
+          ${candidate.best_match_job ? `
+            <div class="candidate-footer">
+              Best match: <strong>${candidate.best_match_job}</strong>
+            </div>
+          ` : '<div class="candidate-footer">No job matches</div>'}
+        </div>
+      `).join('');
+    }
+
+    async function viewCandidate(id) {
+      try {
+        const response = await fetch(`/api/candidates/${id}`);
+        const candidate = await response.json();
+
+        const modalContent = document.getElementById('modalContent');
+        modalContent.innerHTML = `
+          <h2>${candidate.name || 'Unknown Candidate'}</h2>
+
+          <div class="modal-section">
+            <h3>Contact Information</h3>
+            <p><strong>Email:</strong> ${candidate.email || 'Not provided'}</p>
+            <p><strong>Phone:</strong> ${candidate.phone || 'Not provided'}</p>
+            <p><strong>Source:</strong> ${candidate.source === 'email' ? 'Email Submission' : 'Web Upload'}</p>
+            <p><strong>Applied:</strong> ${new Date(candidate.created_at).toLocaleString()}</p>
+          </div>
+
+          <div class="modal-section">
+            <h3>Resume Text Preview</h3>
+            <div class="resume-preview">${candidate.resume_text?.substring(0, 500) || 'No text available'}...</div>
+          </div>
+
+          <div class="modal-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <h3 style="margin: 0;">Job Comparisons</h3>
+              <span style="color: #6b7280; font-size: 13px;">📊 Sorted by Match % (Highest First)</span>
+            </div>
+            ${candidate.comparisons && candidate.comparisons.length > 0 ?
+              candidate.comparisons.map(comp => `
+                <div class="comparison-card">
+                  ${comp.employment_gap_detected ? `
+                    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+                      <strong style="color: #92400e;">⚠️ EMPLOYMENT GAP DETECTED</strong>
+                      <p style="margin: 5px 0 0 0; color: #78350f; font-size: 13px;">${comp.employment_gap_details}</p>
+                      <p style="margin: 8px 0 0 0; color: #78350f; font-size: 12px; font-style: italic;">🔍 Discuss this gap during phone screening</p>
+                    </div>
+                  ` : ''}
+                  <div class="comparison-header">
+                    <h4>${comp.job_title}</h4>
+                    <div class="score-badge score-${getScoreLevel(comp.match_score)}">
+                      ${comp.match_score}% Match
+                    </div>
+                  </div>
+
+                  <div class="comparison-details">
+                    <div class="detail-block">
+                      <strong class="text-success">✅ Strengths</strong>
+                      ${formatText(comp.strengths)}
+                    </div>
+
+                    <div class="detail-block">
+                      <strong class="text-warning">⚠️ Gaps</strong>
+                      ${formatText(comp.gaps)}
+                    </div>
+
+                    <div class="detail-block">
+                      <strong>💡 Recommendations</strong>
+                      ${formatText(comp.recommendations)}
+                    </div>
+
+                    ${comp.detailed_analysis ? `
+                      <div class="detail-block">
+                        <strong>📊 Summary</strong>
+                        <p>${comp.detailed_analysis}</p>
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join('')
+              : '<p>No job comparisons available</p>'
+            }
+          </div>
+        `;
+
+        document.getElementById('candidateModal').style.display = 'flex';
+      } catch (error) {
+        console.error('Error loading candidate details:', error);
+        alert('Error loading candidate details');
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('candidateModal').style.display = 'none';
+    }
+
+    function getScoreLevel(score) {
+      if (score >= 90) return 'excellent';
+      if (score >= 75) return 'strong';
+      if (score >= 60) return 'good';
+      if (score >= 40) return 'moderate';
+      return 'poor';
+    }
+
+    function formatText(text) {
+      if (!text) return '<p>No information</p>';
+      return text.split('\n')
+        .filter(line => line.trim())
+        .map(line => {
+          line = line.trim().replace(/^[-•*]\s*/, '');
+          return `<p>• ${line}</p>`;
+        })
+        .join('');
+    }
+
+    // Search and filter
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const filtered = allCandidates.filter(c =>
+        (c.name || '').toLowerCase().includes(searchTerm) ||
+        (c.email || '').toLowerCase().includes(searchTerm)
+      );
+      displayCandidates(filtered);
+    });
+
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+      const sorted = [...allCandidates];
+      switch(e.target.value) {
+        case 'score_desc':
+          sorted.sort((a, b) => (b.best_match_score || 0) - (a.best_match_score || 0));
+          break;
+        case 'score_asc':
+          sorted.sort((a, b) => (a.best_match_score || 0) - (b.best_match_score || 0));
+          break;
+        case 'date_desc':
+          sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          break;
+        case 'date_asc':
+          sorted.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+          break;
+      }
+      displayCandidates(sorted);
+    });
+
+    // Close modal when clicking outside
+    window.onclick = (event) => {
+      const modal = document.getElementById('candidateModal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+
+    // Load on page load
+    loadDashboard();
+  </script>
+</body>
+</html>

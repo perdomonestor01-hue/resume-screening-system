@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Resume - Custom Workforce Solutions</title>
+  <meta name="description" content="Submit your resume to Custom Workforce Solutions for light industrial staffing opportunities.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-brand">
+        <h1>Custom Workforce Solutions</h1>
+        <p class="tagline">Your Trusted Partner for Light Industrial Staffing Solutions!</p>
+      </div>
+      <div class="nav-links">
+        <a href="/" class="active">Upload</a>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/jobs.html">Jobs</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="upload-section">
+      <div class="upload-header">
+        <h2>Upload Resume</h2>
+        <p>Drag and drop your resume or click to browse</p>
+        <p class="subtitle">We accept PDF, DOCX, DOC, TXT, JPG, and PNG files</p>
+      </div>
+
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()" style="cursor: pointer;">
+        <div class="drop-zone-icon">📄</div>
+        <div class="drop-zone-text">
+          <p><strong>Drop your resume here</strong></p>
+          <p>or</p>
+          <button type="button" class="btn btn-primary" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+            Browse Files
+          </button>
+        </div>
+        <input type="file" id="fileInput" accept=".pdf,.docx,.doc,.txt,.jpg,.jpeg,.png,image/jpeg,image/png" style="display: none;">
+      </div>
+
+      <div id="uploadStatus" class="upload-status" style="display: none;"></div>
+
+      <div id="resultsSection" class="results-section" style="display: none;">
+        <h3>✅ Resume Processed Successfully!</h3>
+        <div id="candidateInfo" class="info-card"></div>
+        <div id="matchResults" class="match-results"></div>
+        <div class="action-buttons">
+          <button class="btn btn-primary" onclick="location.reload()">Upload Another Resume</button>
+          <a href="/dashboard.html" class="btn btn-secondary">View Dashboard</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-card">
+        <h3>How It Works</h3>
+        <ol>
+          <li><strong>Upload Resume:</strong> Drag and drop or select a resume file</li>
+          <li><strong>AI Analysis:</strong> Our AI compares the resume against active job openings</li>
+          <li><strong>Get Results:</strong> View match scores and detailed comparisons instantly</li>
+          <li><strong>Email Alerts:</strong> High-match candidates trigger automatic notifications</li>
+        </ol>
+      </div>
+
+      <div class="info-card">
+        <h3>Alternative: Email Submission</h3>
+        <p>Candidates can also send their resume via email to:</p>
+        <div class="email-box">
+          <strong>recruiting@customworkforcesolutions.com</strong>
+        </div>
+        <p class="small-text">Resumes sent via email are automatically processed and compared against all active jobs.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-branding">
+        <h3>Custom Workforce Solutions</h3>
+        <p>Your Trusted Partner for Light Industrial Staffing Solutions</p>
+      </div>
+      <a href="mailto:recruiting@customworkforcesolutions.com" class="footer-email">
+        recruiting@customworkforcesolutions.com
+      </a>
+      <p class="footer-powered">
+        Powered by Fabien P / AI Resume Screening Technology
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const resultsSection = document.getElementById('resultsSection');
+
+    // Drag and drop handlers
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFile(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    async function handleFile(file) {
+      // Validate file
+      const allowedTypes = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/msword',
+        'text/plain',
+        'image/jpeg',
+        'image/jpg',
+        'image/png'
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        showError('Please upload a PDF, DOCX, DOC, TXT, JPG, or PNG file');
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        showError('File size must be less than 10MB');
+        return;
+      }
+
+      // Show uploading status
+      showStatus('Uploading and processing resume...', 'loading');
+      resultsSection.style.display = 'none';
+
+      // Upload file
+      const formData = new FormData();
+      formData.append('resume', file);
+
+      try {
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Upload failed');
+        }
+
+        showResults(data);
+      } catch (error) {
+        showError('Error: ' + error.message);
+      }
+    }
+
+    function showStatus(message, type = 'info') {
+      uploadStatus.style.display = 'block';
+      uploadStatus.className = `upload-status ${type}`;
+      uploadStatus.innerHTML = message;
+    }
+
+    function showError(message) {
+      showStatus(`❌ ${message}`, 'error');
+    }
+
+    function showResults(data) {
+      uploadStatus.style.display = 'none';
+      resultsSection.style.display = 'block';
+
+      // Show candidate info
+      const candidateInfo = document.getElementById('candidateInfo');
+      candidateInfo.innerHTML = `
+        <h4>Candidate Information</h4>
+        <p><strong>Name:</strong> ${data.candidate.name || 'Not detected'}</p>
+        <p><strong>Email:</strong> ${data.candidate.email || 'Not detected'}</p>
+        <p><strong>Phone:</strong> ${data.candidate.phone || 'Not detected'}</p>
+      `;
+
+      // Show match results
+      const matchResults = document.getElementById('matchResults');
+      if (data.comparisons && data.comparisons.length > 0) {
+        matchResults.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h4 style="margin: 0;">Match Results</h4>
+            <span style="color: #6b7280; font-size: 13px;">📊 Sorted by Match % (Highest First)</span>
+          </div>
+          ${data.comparisons.map(comp => `
+            <div class="match-card">
+              ${comp.employment_gap_detected ? `
+                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+                  <strong style="color: #92400e;">⚠️ EMPLOYMENT GAP DETECTED</strong>
+                  <p style="margin: 5px 0 0 0; color: #78350f; font-size: 13px;">${comp.employment_gap_details}</p>
+                </div>
+              ` : ''}
+              ${comp.commute_info && comp.commute_info !== 'Commute information not available' && comp.commute_info !== 'Address not found in resume' ? `
+                <div style="background: ${comp.commute_reasonable ? '#d1fae5' : '#fee2e2'}; border-left: 4px solid ${comp.commute_reasonable ? '#10b981' : '#ef4444'}; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+                  <strong style="color: ${comp.commute_reasonable ? '#065f46' : '#991b1b'};">🚗 COMMUTE: ${comp.commute_info}</strong>
+                  <p style="margin: 5px 0 0 0; color: ${comp.commute_reasonable ? '#065f46' : '#991b1b'}; font-size: 13px;">
+                    ${comp.commute_reasonable ? '✓ Reasonable commute distance' : '⚠️ Long commute - verify candidate is willing to travel'}
+                  </p>
+                </div>
+              ` : ''}
+              <div class="match-header">
+                <h5>${comp.job_title}</h5>
+                <div class="score-badge score-${getScoreLevel(comp.match_score)}">
+                  ${comp.match_score}% Match
+                </div>
+              </div>
+              <div class="match-details">
+                <div class="detail-section">
+                  <strong class="text-success">✅ Strengths:</strong>
+                  <div>${formatText(comp.strengths)}</div>
+                </div>
+                <div class="detail-section">
+                  <strong class="text-warning">⚠️ Gaps:</strong>
+                  <div>${formatText(comp.gaps)}</div>
+                </div>
+                <div class="detail-section">
+                  <strong>💡 Recommendations:</strong>
+                  <div>${formatText(comp.recommendations)}</div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        `;
+      } else {
+        matchResults.innerHTML = '<p>No active job positions to compare against.</p>';
+      }
+    }
+
+    function getScoreLevel(score) {
+      if (score >= 90) return 'excellent';
+      if (score >= 75) return 'strong';
+      if (score >= 60) return 'good';
+      if (score >= 40) return 'moderate';
+      return 'poor';
+    }
+
+    function formatText(text) {
+      if (!text) return '<p>No information</p>';
+      return text.split('\n')
+        .filter(line => line.trim())
+        .map(line => {
+          line = line.trim().replace(/^[-•*]\s*/, '');
+          return `<p>• ${line}</p>`;
+        })
+        .join('');
+    }
+  </script>
+</body>
+</html>
