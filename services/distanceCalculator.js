@@ -11,11 +11,55 @@ class DistanceCalculator {
     this.openCageApiKey = process.env.OPENCAGE_API_KEY || null;
     this.useNominatim = !this.openCageApiKey;
 
+    // Geocoding cache to avoid redundant API calls
+    this.geocodingCache = new Map();
+
     if (this.useNominatim) {
       console.log('⚠️  OpenCage API key not found, using Nominatim (OpenStreetMap) - rate limited to 1 request/second');
     } else {
       console.log('✅ Using OpenCage Geocoding API');
     }
+  }
+
+  /**
+   * Normalize address for geocoding by removing suite/unit numbers
+   * Suite numbers don't affect building coordinates
+   * @param {string} address - Address to normalize
+   * @returns {string} - Normalized address
+   */
+  normalizeAddress(address) {
+    if (!address) return address;
+
+    let normalized = address;
+
+    // Remove suite/apartment/unit numbers (they don't affect coordinates)
+    // Patterns: #135, Ste 117, Suite 200, Apt 5, Unit 12, etc.
+    const suitePatterns = [
+      /#\s*\d+/gi,                          // #135, # 135
+      /\b(suite|ste|apt|apartment|unit|rm|room|floor|fl)\s*\.?\s*[a-z0-9-]+/gi,  // Ste 117, Suite 200, Apt 5
+      /\b(building|bldg)\s*[a-z0-9]+/gi     // Building B, Bldg 3
+    ];
+
+    suitePatterns.forEach(pattern => {
+      normalized = normalized.replace(pattern, '');
+    });
+
+    // Clean up extra commas and spaces
+    normalized = normalized
+      .replace(/,\s*,/g, ',')               // Remove double commas
+      .replace(/\s+,/g, ',')                // Remove space before comma
+      .replace(/,\s+/g, ', ')               // Normalize comma spacing
+      .replace(/\s{2,}/g, ' ')              // Replace multiple spaces with single space
+      .trim();
+
+    // Remove trailing comma if present
+    normalized = normalized.replace(/,\s*$/, '');
+
+    if (normalized !== address) {
+      console.log(`📝 Normalized address: "${address}" → "${normalized}"`);
+    }
+
+    return normalized;
   }
 
   /**
@@ -113,16 +157,54 @@ class DistanceCalculator {
   }
 
   /**
-   * Geocode an address to get latitude/longitude
+   * Geocode an address to get latitude/longitude (with caching)
    * @param {string} address - Address to geocode
    * @returns {Promise<Object>} - Coordinates or error
    */
   async geocodeAddress(address) {
-    if (this.useNominatim) {
-      return this.geocodeWithNominatim(address);
-    } else {
-      return this.geocodeWithOpenCage(address);
+    // Normalize address (remove suite numbers, extra spaces)
+    const normalizedAddress = this.normalizeAddress(address);
+
+    // Check cache first
+    const cacheKey = normalizedAddress.toLowerCase();
+    if (this.geocodingCache.has(cacheKey)) {
+      const cached = this.geocodingCache.get(cacheKey);
+      console.log(`💾 Using cached geocoding for: ${normalizedAddress}`);
+      return { ...cached, cached: true };
     }
+
+    // Geocode with retry logic
+    let result;
+    if (this.useNominatim) {
+      result = await this.geocodeWithNominatim(normalizedAddress);
+    } else {
+      result = await this.geocodeWithOpenCage(normalizedAddress);
+    }
+
+    // If failed, try with simplified address (city, state ZIP only)
+    if (!result.success && normalizedAddress.includes(',')) {
+      console.log(`⚠️  First geocoding attempt failed, trying with simplified address...`);
+      const parts = normalizedAddress.split(',');
+      if (parts.length >= 2) {
+        // Try with just city, state ZIP
+        const simplifiedAddress = parts.slice(-2).join(',').trim();
+        console.log(`🔄 Retrying with: ${simplifiedAddress}`);
+
+        if (this.useNominatim) {
+          result = await this.geocodeWithNominatim(simplifiedAddress);
+        } else {
+          result = await this.geocodeWithOpenCage(simplifiedAddress);
+        }
+      }
+    }
+
+    // Cache successful result
+    if (result.success) {
+      this.geocodingCache.set(cacheKey, result);
+      console.log(`💾 Cached geocoding result for: ${normalizedAddress}`);
+    }
+
+    return result;
   }
 
   /**

@@ -5,6 +5,8 @@ const cors = require('cors');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs').promises;
+const bcrypt = require('bcrypt');
+const session = require('express-session');
 
 // Services
 const resumeParser = require('./services/resumeParser');
@@ -20,10 +22,31 @@ const PORT = process.env.PORT || 3000;
 // Database
 const db = new sqlite3.Database('./database.db');
 
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'custom-workforce-solutions-2024-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to true if using HTTPS
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
+
+// Authentication middleware
+function requireAuth(req, res, next) {
+  if (req.session && req.session.userId) {
+    next();
+  } else {
+    res.status(401).json({ error: 'Authentication required' });
+  }
+}
 
 // File upload configuration
 const storage = multer.diskStorage({
@@ -69,6 +92,92 @@ app.get('/api/health', (req, res) => {
     emailMonitoring: emailMonitor?.isMonitoring || false,
     timestamp: new Date().toISOString()
   });
+});
+
+/**
+ * Login route
+ */
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Get user from database
+    db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
+      if (err) {
+        console.error('Database error during login:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
+
+      // Compare password
+      const passwordMatch = await bcrypt.compare(password, user.password_hash);
+
+      if (!passwordMatch) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
+
+      // Update last login
+      db.run('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?', [user.id]);
+
+      // Set session
+      req.session.userId = user.id;
+      req.session.userEmail = user.email;
+      req.session.userName = user.name;
+      req.session.userRole = user.role;
+
+      res.json({
+        success: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * Logout route
+ */
+app.post('/api/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).json({ error: 'Failed to logout' });
+    }
+    res.json({ success: true });
+  });
+});
+
+/**
+ * Check authentication status
+ */
+app.get('/api/auth/status', (req, res) => {
+  if (req.session && req.session.userId) {
+    res.json({
+      authenticated: true,
+      user: {
+        id: req.session.userId,
+        email: req.session.userEmail,
+        name: req.session.userName,
+        role: req.session.userRole
+      }
+    });
+  } else {
+    res.json({ authenticated: false });
+  }
 });
 
 /**
@@ -164,7 +273,7 @@ app.post('/api/upload', upload.single('resume'), async (req, res) => {
               comparison.employment_gap_details || null,
               distanceInfo?.distance_km || null,
               distanceInfo?.distance_miles || null,
-              distanceInfo?.commute_reasonable !== null ? (distanceInfo.commute_reasonable ? 1 : 0) : null,
+              (distanceInfo && distanceInfo.commute_reasonable !== null && distanceInfo.commute_reasonable !== undefined) ? (distanceInfo.commute_reasonable ? 1 : 0) : null,
               distanceInfo?.commute_description || null,
               distanceInfo?.success ? 1 : 0
             ],
@@ -304,9 +413,9 @@ app.get('/api/jobs/:id', (req, res) => {
 });
 
 /**
- * Create new job
+ * Create new job (requires authentication)
  */
-app.post('/api/jobs', (req, res) => {
+app.post('/api/jobs', requireAuth, (req, res) => {
   const {
     title,
     description,
@@ -363,9 +472,9 @@ app.post('/api/jobs', (req, res) => {
 });
 
 /**
- * Update job
+ * Update job (requires authentication)
  */
-app.put('/api/jobs/:id', (req, res) => {
+app.put('/api/jobs/:id', requireAuth, (req, res) => {
   const {
     title,
     description,
@@ -395,6 +504,7 @@ app.put('/api/jobs/:id', (req, res) => {
       salary_hourly = COALESCE(?, salary_hourly),
       job_site_address = COALESCE(?, job_site_address),
       status = COALESCE(?, status),
+      version = version + 1,
       updated_at = CURRENT_TIMESTAMP
      WHERE id = ?`,
     [
@@ -425,9 +535,9 @@ app.put('/api/jobs/:id', (req, res) => {
 });
 
 /**
- * Delete job
+ * Delete job (requires authentication)
  */
-app.delete('/api/jobs/:id', (req, res) => {
+app.delete('/api/jobs/:id', requireAuth, (req, res) => {
   db.run('DELETE FROM jobs WHERE id = ?', [req.params.id], function (err) {
     if (err) {
       return res.status(500).json({ error: err.message });

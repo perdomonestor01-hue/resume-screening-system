@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Descriptions - Custom Workforce Solutions</title>
+  <meta name="description" content="Manage job descriptions for Custom Workforce Solutions light industrial staffing positions.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-brand">
+        <h1>Custom Workforce Solutions</h1>
+        <p class="tagline">Your Trusted Partner for Light Industrial Staffing Solutions!</p>
+      </div>
+      <div class="nav-links">
+        <a href="/">Upload</a>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/jobs.html" class="active">Jobs</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="jobs-header">
+      <h2>Job Descriptions</h2>
+      <button class="btn btn-primary" onclick="showJobForm()">+ Add New Job</button>
+    </div>
+
+    <div id="jobForm" class="job-form" style="display: none;">
+      <h3 id="formTitle">Add New Job</h3>
+      <form id="jobFormElement" onsubmit="saveJob(event)">
+        <input type="hidden" id="jobId">
+
+        <div class="form-group">
+          <label for="jobTitle">Job Title *</label>
+          <input type="text" id="jobTitle" required placeholder="e.g., Senior Software Engineer">
+        </div>
+
+        <div class="form-group">
+          <label for="jobDescription">Job Description *</label>
+          <textarea id="jobDescription" required rows="5" placeholder="Describe the role, responsibilities, and ideal candidate..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="experienceLevel">Experience Level</label>
+            <input type="text" id="experienceLevel" placeholder="e.g., 5-8 years">
+          </div>
+
+          <div class="form-group">
+            <label for="educationRequirements">Education Requirements</label>
+            <input type="text" id="educationRequirements" placeholder="e.g., Bachelor's in Computer Science">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="requiredSkills">Required Skills</label>
+          <textarea id="requiredSkills" rows="3" placeholder="e.g., JavaScript, Node.js, React, SQL, 5+ years experience"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="preferredSkills">Preferred Skills</label>
+          <textarea id="preferredSkills" rows="3" placeholder="e.g., TypeScript, AWS, Docker, GraphQL"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="accountManager">Account Manager *</label>
+          <input type="text" id="accountManager" required placeholder="e.g., John Smith">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sector">Sector *</label>
+            <select id="sector" required style="font-size: 15px; padding: 10px;">
+              <option value="">Select Sector</option>
+              <option value="Admin">Admin</option>
+              <option value="Construction">Construction</option>
+              <option value="Hospitality">Hospitality</option>
+              <option value="Warehouse">Warehouse</option>
+              <option value="Transportation">Transportation</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="jobType">Job Type *</label>
+            <select id="jobType" required style="font-size: 15px; padding: 10px;">
+              <option value="">Select Type</option>
+              <option value="Temp to Perm">Temp to Perm</option>
+              <option value="Full Time">Full Time</option>
+              <option value="Part Time">Part Time</option>
+              <option value="Project">Project</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="salaryHourly">Salary ($ Hourly) *</label>
+            <input type="number" id="salaryHourly" required step="0.01" min="0" placeholder="e.g., 18.50">
+          </div>
+
+          <div class="form-group">
+            <label for="jobSiteAddress">Job Site Address *</label>
+            <input type="text" id="jobSiteAddress" required placeholder="e.g., 123 Main St, Milwaukee, WI 53202">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Job</button>
+          <button type="button" class="btn btn-secondary" onclick="cancelJobForm()">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="jobsLoading" class="loading">Loading jobs...</div>
+    <div id="jobsContainer"></div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-branding">
+        <h3>Custom Workforce Solutions</h3>
+        <p>Your Trusted Partner for Light Industrial Staffing Solutions</p>
+      </div>
+      <a href="mailto:recruiting@customworkforcesolutions.com" class="footer-email">
+        recruiting@customworkforcesolutions.com
+      </a>
+      <p class="footer-powered">
+        Powered by Fabien P / AI Resume Screening Technology
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    let allJobs = [];
+
+    function formatDateTime(dateString) {
+      const date = new Date(dateString);
+      // Convert to Texas Central Time (America/Chicago)
+      const options = {
+        timeZone: 'America/Chicago',
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      };
+      const parts = new Intl.DateTimeFormat('en-US', options).formatToParts(date);
+
+      const month = parts.find(p => p.type === 'month').value;
+      const day = parts.find(p => p.type === 'day').value;
+      const year = parts.find(p => p.type === 'year').value;
+      const hour = parts.find(p => p.type === 'hour').value;
+      const minute = parts.find(p => p.type === 'minute').value;
+
+      return `${month}/${day}/${year} at ${hour}:${minute}`;
+    }
+
+    async function loadJobs() {
+      try {
+        const response = await fetch('/api/jobs');
+        allJobs = await response.json();
+        displayJobs(allJobs);
+        document.getElementById('jobsLoading').style.display = 'none';
+      } catch (error) {
+        console.error('Error loading jobs:', error);
+        document.getElementById('jobsLoading').innerHTML =
+          '<p class="error">❌ Error loading jobs. Please refresh the page.</p>';
+      }
+    }
+
+    function displayJobs(jobs) {
+      const container = document.getElementById('jobsContainer');
+
+      if (jobs.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <h3>No jobs yet</h3>
+            <p>Create your first job description to start screening candidates.</p>
+            <button class="btn btn-primary" onclick="showJobForm()">Add Job</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = jobs.map(job => `
+        <div class="job-card ${job.status === 'inactive' ? 'inactive' : ''}">
+          <div class="job-header">
+            <div>
+              <h3>${job.title}</h3>
+              <span class="status-badge ${job.status}">${job.status}</span>
+            </div>
+            <div class="job-actions">
+              <button class="btn-icon" onclick="editJob(${job.id})" title="Edit">✏️</button>
+              <button class="btn-icon" onclick="toggleJobStatus(${job.id}, '${job.status}')" title="${job.status === 'active' ? 'Deactivate' : 'Activate'}">
+                ${job.status === 'active' ? '⏸️' : '▶️'}
+              </button>
+              <button class="btn-icon" onclick="deleteJob(${job.id})" title="Delete">🗑️</button>
+            </div>
+          </div>
+
+          <div class="job-details">
+            <p>${job.description}</p>
+
+            ${job.sector ? `
+              <div class="job-meta">
+                <strong>Sector:</strong> ${job.sector}
+              </div>
+            ` : ''}
+
+            ${job.job_type ? `
+              <div class="job-meta">
+                <strong>Job Type:</strong> ${job.job_type}
+              </div>
+            ` : ''}
+
+            ${job.salary_hourly ? `
+              <div class="job-meta">
+                <strong>Salary:</strong> $${parseFloat(job.salary_hourly).toFixed(2)}/hour
+              </div>
+            ` : ''}
+
+            ${job.job_site_address ? `
+              <div class="job-meta">
+                <strong>Location:</strong> ${job.job_site_address}
+              </div>
+            ` : ''}
+
+            ${job.account_manager ? `
+              <div class="job-meta">
+                <strong>Account Manager:</strong> ${job.account_manager}
+              </div>
+            ` : ''}
+
+            ${job.experience_level ? `
+              <div class="job-meta">
+                <strong>Experience:</strong> ${job.experience_level}
+              </div>
+            ` : ''}
+
+            ${job.education_requirements ? `
+              <div class="job-meta">
+                <strong>Education:</strong> ${job.education_requirements}
+              </div>
+            ` : ''}
+
+            ${job.required_skills ? `
+              <div class="job-meta">
+                <strong>Required Skills:</strong> ${job.required_skills}
+              </div>
+            ` : ''}
+
+            ${job.preferred_skills ? `
+              <div class="job-meta">
+                <strong>Preferred Skills:</strong> ${job.preferred_skills}
+              </div>
+            ` : ''}
+
+            <div class="job-footer">
+              <small><strong>V${job.version || 0}</strong> on ${formatDateTime(job.updated_at || job.created_at)}</small>
+              ${job.updated_at !== job.created_at ? `
+                <small>• Created: ${formatDateTime(job.created_at)}</small>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function showJobForm(job = null) {
+      const form = document.getElementById('jobForm');
+      const formTitle = document.getElementById('formTitle');
+
+      if (job) {
+        formTitle.textContent = 'Edit Job';
+        document.getElementById('jobId').value = job.id;
+        document.getElementById('jobTitle').value = job.title;
+        document.getElementById('jobDescription').value = job.description;
+        document.getElementById('experienceLevel').value = job.experience_level || '';
+        document.getElementById('educationRequirements').value = job.education_requirements || '';
+        document.getElementById('requiredSkills').value = job.required_skills || '';
+        document.getElementById('preferredSkills').value = job.preferred_skills || '';
+        document.getElementById('accountManager').value = job.account_manager || '';
+        document.getElementById('sector').value = job.sector || '';
+        document.getElementById('jobType').value = job.job_type || '';
+        document.getElementById('salaryHourly').value = job.salary_hourly || '';
+        document.getElementById('jobSiteAddress').value = job.job_site_address || '';
+      } else {
+        formTitle.textContent = 'Add New Job';
+        document.getElementById('jobFormElement').reset();
+        document.getElementById('jobId').value = '';
+      }
+
+      form.style.display = 'block';
+      form.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelJobForm() {
+      document.getElementById('jobForm').style.display = 'none';
+      document.getElementById('jobFormElement').reset();
+    }
+
+    async function saveJob(event) {
+      event.preventDefault();
+
+      const jobId = document.getElementById('jobId').value;
+      const jobData = {
+        title: document.getElementById('jobTitle').value,
+        description: document.getElementById('jobDescription').value,
+        experience_level: document.getElementById('experienceLevel').value,
+        education_requirements: document.getElementById('educationRequirements').value,
+        required_skills: document.getElementById('requiredSkills').value,
+        preferred_skills: document.getElementById('preferredSkills').value,
+        account_manager: document.getElementById('accountManager').value,
+        sector: document.getElementById('sector').value,
+        job_type: document.getElementById('jobType').value,
+        salary_hourly: document.getElementById('salaryHourly').value,
+        job_site_address: document.getElementById('jobSiteAddress').value
+      };
+
+      try {
+        const url = jobId ? `/api/jobs/${jobId}` : '/api/jobs';
+        const method = jobId ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(jobData)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to save job');
+        }
+
+        alert(jobId ? 'Job updated successfully!' : 'Job created successfully!');
+        cancelJobForm();
+        loadJobs();
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+
+    async function editJob(id) {
+      try {
+        const response = await fetch(`/api/jobs/${id}`);
+        const job = await response.json();
+        showJobForm(job);
+      } catch (error) {
+        alert('Error loading job: ' + error.message);
+      }
+    }
+
+    async function toggleJobStatus(id, currentStatus) {
+      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+      const confirmMsg = newStatus === 'inactive'
+        ? 'Are you sure you want to deactivate this job? New resumes will not be compared against it.'
+        : 'Activate this job? New resumes will be compared against it.';
+
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        const response = await fetch(`/api/jobs/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to update job status');
+        }
+
+        loadJobs();
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+
+    async function deleteJob(id) {
+      if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/jobs/${id}`, {
+          method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to delete job');
+        }
+
+        alert('Job deleted successfully!');
+        loadJobs();
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+
+    // Load jobs on page load
+    loadJobs();
+  </script>
+</body>
+</html>

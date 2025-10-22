@@ -1,392 +1,1003 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Job Descriptions - Custom Workforce Solutions</title>
-  <meta name="description" content="Manage job descriptions for Custom Workforce Solutions light industrial staffing positions.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Job - Resume Screening System</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --cws-safety-orange: #FF6B35;
+            --cws-safety-orange-dark: #E55A2B;
+            --cws-navy-blue: #004AAD;
+            --cws-light-gray: #F5F5F5;
+            --cws-dark-gray: #333333;
+            --cws-gray-border: #CCCCCC;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--cws-light-gray);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .home-btn {
+            padding: 10px 20px;
+            background: var(--cws-navy-blue);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .home-btn:hover {
+            background: #0066CC;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 74, 173, 0.3);
+        }
+
+        .header h1 {
+            margin: 0;
+            color: var(--cws-navy-blue);
+            font-size: 28px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--cws-dark-gray);
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: var(--cws-safety-orange);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .wizard-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .progress-bar-container {
+            background: var(--cws-light-gray);
+            padding: 30px;
+            border-bottom: 2px solid var(--cws-gray-border);
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress-step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--cws-gray-border);
+            margin: 0 auto 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--cws-gray-border);
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-step.active .progress-step-circle {
+            background: var(--cws-safety-orange);
+            border-color: var(--cws-safety-orange);
+            color: white;
+        }
+
+        .progress-step.completed .progress-step-circle {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        .progress-step-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .progress-step.active .progress-step-label {
+            color: var(--cws-safety-orange);
+            font-weight: 600;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--cws-gray-border);
+            z-index: 1;
+        }
+
+        .progress-line-fill {
+            height: 100%;
+            background: var(--cws-safety-orange);
+            transition: width 0.3s ease;
+        }
+
+        .wizard-content {
+            padding: 50px;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-size: 24px;
+            color: var(--cws-navy-blue);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .step-description {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--cws-dark-gray);
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .required {
+            color: var(--cws-safety-orange);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--cws-gray-border);
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--cws-safety-orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .form-hint {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+            transition: color 0.3s ease;
+        }
+
+        .form-hint.success {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .form-hint.error {
+            color: #EF4444;
+            font-weight: 600;
+        }
+
+        /* Autocomplete styling for datalist */
+        input[list]::-webkit-calendar-picker-indicator {
+            opacity: 0.6;
+        }
+
+        input[list]:focus::-webkit-calendar-picker-indicator {
+            opacity: 1;
+        }
+
+        .wizard-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid var(--cws-light-gray);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary {
+            background: var(--cws-light-gray);
+            color: var(--cws-dark-gray);
+        }
+
+        .btn-secondary:hover {
+            background: var(--cws-gray-border);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cws-safety-orange) 0%, var(--cws-safety-orange-dark) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .error-message {
+            background: #FEE2E2;
+            border: 1px solid #EF4444;
+            color: #991B1B;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .review-section {
+            background: var(--cws-light-gray);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .review-section h3 {
+            margin: 0 0 15px 0;
+            color: var(--cws-navy-blue);
+            font-size: 18px;
+        }
+
+        .review-item {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .review-label {
+            font-weight: 600;
+            color: #666;
+            width: 180px;
+            flex-shrink: 0;
+        }
+
+        .review-value {
+            color: var(--cws-dark-gray);
+            flex: 1;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            border: 4px solid var(--cws-light-gray);
+            border-top: 4px solid var(--cws-safety-orange);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="container">
-      <div class="nav-brand">
-        <h1>Custom Workforce Solutions</h1>
-        <p class="tagline">Your Trusted Partner for Light Industrial Staffing Solutions!</p>
-      </div>
-      <div class="nav-links">
-        <a href="/">Upload</a>
-        <a href="/dashboard.html">Dashboard</a>
-        <a href="/jobs.html" class="active">Jobs</a>
-      </div>
-    </div>
-  </nav>
-
-  <main class="container">
-    <div class="jobs-header">
-      <h2>Job Descriptions</h2>
-      <button class="btn btn-primary" onclick="showJobForm()">+ Add New Job</button>
+    <div id="authCheck" class="loading">
+        <div class="loading-spinner"></div>
+        <p>Checking authentication...</p>
     </div>
 
-    <div id="jobForm" class="job-form" style="display: none;">
-      <h3 id="formTitle">Add New Job</h3>
-      <form id="jobFormElement" onsubmit="saveJob(event)">
-        <input type="hidden" id="jobId">
-
-        <div class="form-group">
-          <label for="jobTitle">Job Title *</label>
-          <input type="text" id="jobTitle" required placeholder="e.g., Senior Software Engineer">
-        </div>
-
-        <div class="form-group">
-          <label for="jobDescription">Job Description *</label>
-          <textarea id="jobDescription" required rows="5" placeholder="Describe the role, responsibilities, and ideal candidate..."></textarea>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="experienceLevel">Experience Level</label>
-            <input type="text" id="experienceLevel" placeholder="e.g., 5-8 years">
-          </div>
-
-          <div class="form-group">
-            <label for="educationRequirements">Education Requirements</label>
-            <input type="text" id="educationRequirements" placeholder="e.g., Bachelor's in Computer Science">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="requiredSkills">Required Skills</label>
-          <textarea id="requiredSkills" rows="3" placeholder="e.g., JavaScript, Node.js, React, SQL, 5+ years experience"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="preferredSkills">Preferred Skills</label>
-          <textarea id="preferredSkills" rows="3" placeholder="e.g., TypeScript, AWS, Docker, GraphQL"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="accountManager">Account Manager</label>
-          <input type="text" id="accountManager" placeholder="e.g., John Smith">
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="sector">Sector *</label>
-            <select id="sector" required style="font-size: 15px; padding: 10px;">
-              <option value="">Select Sector</option>
-              <option value="Admin">Admin</option>
-              <option value="Construction">Construction</option>
-              <option value="Hospitality">Hospitality</option>
-              <option value="Warehouse">Warehouse</option>
-              <option value="Transportation">Transportation</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="jobType">Job Type *</label>
-            <select id="jobType" required style="font-size: 15px; padding: 10px;">
-              <option value="">Select Type</option>
-              <option value="Temp to Perm">Temp to Perm</option>
-              <option value="Full Time">Full Time</option>
-              <option value="Part Time">Part Time</option>
-              <option value="Project">Project</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="salaryHourly">Salary ($ Hourly) *</label>
-            <input type="number" id="salaryHourly" required step="0.01" min="0" placeholder="e.g., 18.50">
-          </div>
-
-          <div class="form-group">
-            <label for="jobSiteAddress">Job Site Address *</label>
-            <input type="text" id="jobSiteAddress" required placeholder="e.g., 123 Main St, Milwaukee, WI 53202">
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Save Job</button>
-          <button type="button" class="btn btn-secondary" onclick="cancelJobForm()">Cancel</button>
-        </div>
-      </form>
-    </div>
-
-    <div id="jobsLoading" class="loading">Loading jobs...</div>
-    <div id="jobsContainer"></div>
-  </main>
-
-  <footer class="site-footer">
-    <div class="footer-content">
-      <div class="footer-branding">
-        <h3>Custom Workforce Solutions</h3>
-        <p>Your Trusted Partner for Light Industrial Staffing Solutions</p>
-      </div>
-      <a href="mailto:recruiting@customworkforcesolutions.com" class="footer-email">
-        recruiting@customworkforcesolutions.com
-      </a>
-      <p class="footer-powered">
-        Powered by Fabien P / AI Resume Screening Technology
-      </p>
-    </div>
-  </footer>
-
-  <script>
-    let allJobs = [];
-
-    async function loadJobs() {
-      try {
-        const response = await fetch('/api/jobs');
-        allJobs = await response.json();
-        displayJobs(allJobs);
-        document.getElementById('jobsLoading').style.display = 'none';
-      } catch (error) {
-        console.error('Error loading jobs:', error);
-        document.getElementById('jobsLoading').innerHTML =
-          '<p class="error">❌ Error loading jobs. Please refresh the page.</p>';
-      }
-    }
-
-    function displayJobs(jobs) {
-      const container = document.getElementById('jobsContainer');
-
-      if (jobs.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <h3>No jobs yet</h3>
-            <p>Create your first job description to start screening candidates.</p>
-            <button class="btn btn-primary" onclick="showJobForm()">Add Job</button>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = jobs.map(job => `
-        <div class="job-card ${job.status === 'inactive' ? 'inactive' : ''}">
-          <div class="job-header">
-            <div>
-              <h3>${job.title}</h3>
-              <span class="status-badge ${job.status}">${job.status}</span>
+    <div id="mainContent" style="display: none;">
+        <div class="header">
+            <div class="header-left">
+                <button class="home-btn" onclick="goHome()">
+                    🏠 Home
+                </button>
+                <h1>📋 Add New Job Posting</h1>
             </div>
-            <div class="job-actions">
-              <button class="btn-icon" onclick="editJob(${job.id})" title="Edit">✏️</button>
-              <button class="btn-icon" onclick="toggleJobStatus(${job.id}, '${job.status}')" title="${job.status === 'active' ? 'Deactivate' : 'Activate'}">
-                ${job.status === 'active' ? '⏸️' : '▶️'}
-              </button>
-              <button class="btn-icon" onclick="deleteJob(${job.id})" title="Delete">🗑️</button>
+            <div class="user-info">
+                <span class="user-name" id="userName"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
-          </div>
-
-          <div class="job-details">
-            <p>${job.description}</p>
-
-            ${job.sector ? `
-              <div class="job-meta">
-                <strong>Sector:</strong> ${job.sector}
-              </div>
-            ` : ''}
-
-            ${job.job_type ? `
-              <div class="job-meta">
-                <strong>Job Type:</strong> ${job.job_type}
-              </div>
-            ` : ''}
-
-            ${job.salary_hourly ? `
-              <div class="job-meta">
-                <strong>Salary:</strong> $${parseFloat(job.salary_hourly).toFixed(2)}/hour
-              </div>
-            ` : ''}
-
-            ${job.job_site_address ? `
-              <div class="job-meta">
-                <strong>Location:</strong> ${job.job_site_address}
-              </div>
-            ` : ''}
-
-            ${job.account_manager ? `
-              <div class="job-meta">
-                <strong>Account Manager:</strong> ${job.account_manager}
-              </div>
-            ` : ''}
-
-            ${job.experience_level ? `
-              <div class="job-meta">
-                <strong>Experience:</strong> ${job.experience_level}
-              </div>
-            ` : ''}
-
-            ${job.education_requirements ? `
-              <div class="job-meta">
-                <strong>Education:</strong> ${job.education_requirements}
-              </div>
-            ` : ''}
-
-            ${job.required_skills ? `
-              <div class="job-meta">
-                <strong>Required Skills:</strong> ${job.required_skills}
-              </div>
-            ` : ''}
-
-            ${job.preferred_skills ? `
-              <div class="job-meta">
-                <strong>Preferred Skills:</strong> ${job.preferred_skills}
-              </div>
-            ` : ''}
-
-            <div class="job-footer">
-              <small>Created: ${new Date(job.created_at).toLocaleDateString()}</small>
-              ${job.updated_at !== job.created_at ? `
-                <small>• Updated: ${new Date(job.updated_at).toLocaleDateString()}</small>
-              ` : ''}
-            </div>
-          </div>
         </div>
-      `).join('');
-    }
 
-    function showJobForm(job = null) {
-      const form = document.getElementById('jobForm');
-      const formTitle = document.getElementById('formTitle');
+        <div class="wizard-container">
+            <div class="progress-bar-container">
+                <div class="progress-steps">
+                    <div class="progress-line">
+                        <div class="progress-line-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-step active" data-step="1">
+                        <div class="progress-step-circle">1</div>
+                        <div class="progress-step-label">Title</div>
+                    </div>
+                    <div class="progress-step" data-step="2">
+                        <div class="progress-step-circle">2</div>
+                        <div class="progress-step-label">Description</div>
+                    </div>
+                    <div class="progress-step" data-step="3">
+                        <div class="progress-step-circle">3</div>
+                        <div class="progress-step-label">Experience</div>
+                    </div>
+                    <div class="progress-step" data-step="4">
+                        <div class="progress-step-circle">4</div>
+                        <div class="progress-step-label">Skills</div>
+                    </div>
+                    <div class="progress-step" data-step="5">
+                        <div class="progress-step-circle">5</div>
+                        <div class="progress-step-label">Manager</div>
+                    </div>
+                    <div class="progress-step" data-step="6">
+                        <div class="progress-step-circle">6</div>
+                        <div class="progress-step-label">Details</div>
+                    </div>
+                    <div class="progress-step" data-step="7">
+                        <div class="progress-step-circle">7</div>
+                        <div class="progress-step-label">Location</div>
+                    </div>
+                    <div class="progress-step" data-step="8">
+                        <div class="progress-step-circle">8</div>
+                        <div class="progress-step-label">Review</div>
+                    </div>
+                </div>
+            </div>
 
-      if (job) {
-        formTitle.textContent = 'Edit Job';
-        document.getElementById('jobId').value = job.id;
-        document.getElementById('jobTitle').value = job.title;
-        document.getElementById('jobDescription').value = job.description;
-        document.getElementById('experienceLevel').value = job.experience_level || '';
-        document.getElementById('educationRequirements').value = job.education_requirements || '';
-        document.getElementById('requiredSkills').value = job.required_skills || '';
-        document.getElementById('preferredSkills').value = job.preferred_skills || '';
-        document.getElementById('accountManager').value = job.account_manager || '';
-        document.getElementById('sector').value = job.sector || '';
-        document.getElementById('jobType').value = job.job_type || '';
-        document.getElementById('salaryHourly').value = job.salary_hourly || '';
-        document.getElementById('jobSiteAddress').value = job.job_site_address || '';
-      } else {
-        formTitle.textContent = 'Add New Job';
-        document.getElementById('jobFormElement').reset();
-        document.getElementById('jobId').value = '';
-      }
+            <div class="wizard-content">
+                <form id="jobForm">
+                    <!-- Step 1: Job Title -->
+                    <div class="step-content active" data-step="1">
+                        <h2 class="step-title">What's the job title?</h2>
+                        <p class="step-description">Enter a clear, specific job title</p>
 
-      form.style.display = 'block';
-      form.scrollIntoView({ behavior: 'smooth' });
-    }
+                        <div class="form-group">
+                            <label for="title">Job Title <span class="required">*</span></label>
+                            <input type="text" id="title" name="title" required placeholder="e.g., Reach Truck Operator">
+                            <div class="form-hint">Be specific and use industry-standard job titles</div>
+                        </div>
+                    </div>
 
-    function cancelJobForm() {
-      document.getElementById('jobForm').style.display = 'none';
-      document.getElementById('jobFormElement').reset();
-    }
+                    <!-- Step 2: Job Description -->
+                    <div class="step-content" data-step="2">
+                        <h2 class="step-title">What does this job entail?</h2>
+                        <p class="step-description">The more detailed, the better. Include responsibilities, work environment, and expectations.</p>
 
-    async function saveJob(event) {
-      event.preventDefault();
+                        <div class="form-group">
+                            <label for="description">Job Description <span class="required">*</span></label>
+                            <textarea id="description" name="description" required
+                                placeholder="Describe the role, daily responsibilities, work environment, shift details, physical requirements, team structure, and any other important details..."></textarea>
+                            <div class="form-hint">Provide as much detail as possible - this helps us match the right candidates</div>
+                        </div>
+                    </div>
 
-      const jobId = document.getElementById('jobId').value;
-      const jobData = {
-        title: document.getElementById('jobTitle').value,
-        description: document.getElementById('jobDescription').value,
-        experience_level: document.getElementById('experienceLevel').value,
-        education_requirements: document.getElementById('educationRequirements').value,
-        required_skills: document.getElementById('requiredSkills').value,
-        preferred_skills: document.getElementById('preferredSkills').value,
-        account_manager: document.getElementById('accountManager').value,
-        sector: document.getElementById('sector').value,
-        job_type: document.getElementById('jobType').value,
-        salary_hourly: document.getElementById('salaryHourly').value,
-        job_site_address: document.getElementById('jobSiteAddress').value
-      };
+                    <!-- Step 3: Experience & Education -->
+                    <div class="step-content" data-step="3">
+                        <h2 class="step-title">Experience & Education Requirements</h2>
+                        <p class="step-description">What level of experience and education is required?</p>
 
-      try {
-        const url = jobId ? `/api/jobs/${jobId}` : '/api/jobs';
-        const method = jobId ? 'PUT' : 'POST';
+                        <div class="form-group">
+                            <label for="experienceLevel">Experience Level <span class="required">*</span></label>
+                            <input type="text" id="experienceLevel" name="experienceLevel" required
+                                placeholder="e.g., Entry Level to 2 years and certified">
+                            <div class="form-hint">Example: "Entry Level to 2 years and certified" or "5+ years in warehouse operations"</div>
+                        </div>
 
-        const response = await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(jobData)
-        });
+                        <div class="form-group">
+                            <label for="education">Education Requirements <span class="required">*</span></label>
+                            <select id="education" name="education" required>
+                                <option value="">Select education requirement...</option>
+                                <option value="No formal education required">No Formal Education Required</option>
+                                <option value="High School Diploma">High School Diploma</option>
+                                <option value="GED">GED</option>
+                                <option value="High School Diploma or GED">High School Diploma or GED</option>
+                                <option value="Some College">Some College</option>
+                                <option value="Associate Degree">Associate Degree</option>
+                                <option value="Bachelor's Degree">Bachelor's Degree</option>
+                                <option value="Master's Degree or higher">Master's Degree or Higher</option>
+                            </select>
+                        </div>
+                    </div>
 
-        const result = await response.json();
+                    <!-- Step 4: Skills -->
+                    <div class="step-content" data-step="4">
+                        <h2 class="step-title">Required & Preferred Skills</h2>
+                        <p class="step-description">Define the essential qualifications and additional strengths you're looking for</p>
 
-        if (!response.ok) {
-          throw new Error(result.error || 'Failed to save job');
+                        <div class="form-group">
+                            <label for="requiredSkills">Required Skills <span class="required">*</span></label>
+                            <textarea id="requiredSkills" name="requiredSkills" required
+                                placeholder="List all non-negotiable skills, certifications, and qualifications..."></textarea>
+                            <div class="form-hint"><strong>Skills or certifications that are non-negotiable.</strong> Example: Certified or trained in reach truck operation, valid OSHA 10 certification, ability to lift 50+ lbs consistently, 2+ years warehouse experience, proficient in inventory management systems</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="preferredSkills">Preferred Skills</label>
+                            <textarea id="preferredSkills" name="preferredSkills"
+                                placeholder="List skills that are optional but will strengthen an applicant's candidacy..."></textarea>
+                            <div class="form-hint"><strong>Skills that are optional but will add strength to the applicant.</strong> Example: Proficiency with RF scanners and handheld mobile devices, multi-equipment certifications (order picker, sit-down forklift, pallet jack), bilingual (English/Spanish), previous experience in food/beverage distribution, Lean Six Sigma knowledge</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Account Manager & Sector -->
+                    <div class="step-content" data-step="5">
+                        <h2 class="step-title">Who's managing this position?</h2>
+                        <p class="step-description">Select the account manager and sector</p>
+
+                        <div class="form-group">
+                            <label for="accountManager">Account Manager <span class="required">*</span></label>
+                            <select id="accountManager" name="accountManager" required>
+                                <option value="">Select account manager...</option>
+                                <option value="Fabien Perdomo">Fabien Perdomo</option>
+                                <option value="Abeni Cavil">Abeni Cavil</option>
+                                <option value="Lorie Cavil">Lorie Cavil</option>
+                                <option value="Yesenia Dickerson">Yesenia Dickerson</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sector">Sector <span class="required">*</span></label>
+                            <select id="sector" name="sector" required>
+                                <option value="">Select sector...</option>
+                                <option value="Light Industrial">Light Industrial</option>
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Warehouse">Warehouse</option>
+                                <option value="Distribution">Distribution</option>
+                                <option value="Logistics">Logistics</option>
+                                <option value="Production">Production</option>
+                                <option value="Skilled Trades">Skilled Trades</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Step 6: Job Type & Salary -->
+                    <div class="step-content" data-step="6">
+                        <h2 class="step-title">Employment Details</h2>
+                        <p class="step-description">Job type and compensation</p>
+
+                        <div class="form-group">
+                            <label for="jobType">Job Type <span class="required">*</span></label>
+                            <select id="jobType" name="jobType" required>
+                                <option value="">Select job type...</option>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Temporary">Temporary</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Temp-to-Hire">Temp-to-Hire</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="salary">Hourly Rate ($/hour) <span class="required">*</span></label>
+                            <select id="salary" name="salary" required>
+                                <option value="">Select hourly rate...</option>
+                            </select>
+                            <div class="form-hint">Select the hourly pay rate for this position</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 7: Location -->
+                    <div class="step-content" data-step="7">
+                        <h2 class="step-title">Where is the job located?</h2>
+                        <p class="step-description">Provide the complete job site address</p>
+
+                        <div class="form-group">
+                            <label for="address">Job Site Address <span class="required">*</span></label>
+                            <input type="text" id="address" name="address" required
+                                placeholder="e.g., 1234 Main Street">
+                            <div class="form-hint">Enter the complete street address including building/suite number</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="city">City <span class="required">*</span></label>
+                            <input type="text" id="city" name="city" required placeholder="e.g., Dallas"
+                                list="texasCitiesList" autocomplete="off">
+                            <datalist id="texasCitiesList">
+                                <!-- Populated dynamically by JavaScript -->
+                            </datalist>
+                            <div class="form-hint">Start typing to see Texas cities</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="zipCode">ZIP Code <span class="required">*</span></label>
+                            <input type="text" id="zipCode" name="zipCode" required
+                                placeholder="e.g., 75201" pattern="[0-9]{5}" maxlength="5">
+                            <div class="form-hint" id="zipCodeHint">Enter 5-digit ZIP code</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 8: Review -->
+                    <div class="step-content" data-step="8">
+                        <h2 class="step-title">Review & Submit</h2>
+                        <p class="step-description">Please review all information before submitting</p>
+
+                        <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+                        <div class="review-section">
+                            <h3>Job Information</h3>
+                            <div class="review-item">
+                                <div class="review-label">Job Title:</div>
+                                <div class="review-value" id="review-title"></div>
+                            </div>
+                            <div class="review-item">
+                                <div class="review-label">Description:</div>
+                                <div class="review-value" id="review-description"></div>
+                            </div>
+                        </div>
+
+                        <div class="review-section">
+                            <h3>Requirements</h3>
+                            <div class="review-item">
+                                <div class="review-label">Experience Level:</div>
+                                <div class="review-value" id="review-experience"></div>
+                            </div>
+                            <div class="review-item">
+                                <div class="review-label">Education:</div>
+                                <div class="review-value" id="review-education"></div>
+                            </div>
+                            <div class="review-item">
+                                <div class="review-label">Required Skills:</div>
+                                <div class="review-value" id="review-requiredSkills"></div>
+                            </div>
+                            <div class="review-item">
+                                <div class="review-label">Preferred Skills:</div>
+                                <div class="review-value" id="review-preferredSkills"></div>
+                            </div>
+                        </div>
+
+                        <div class="review-section">
+                            <h3>Employment Details</h3>
+                            <div class="review-item">
+                                <div class="review-label">Account Manager:</div>
+                                <div class="review-value" id="review-accountManager"></div>
+                            </div>
+                            <div class="review-item">
+                                <div class="review-label">Sector:</div>
+                                <div class="review-value" id="review-sector"></div>
+                            </div>
+                            <div class="review-item">
+                                <div class="review-label">Job Type:</div>
+                                <div class="review-value" id="review-jobType"></div>
+                            </div>
+                            <div class="review-item">
+                                <div class="review-label">Hourly Rate:</div>
+                                <div class="review-value" id="review-salary"></div>
+                            </div>
+                        </div>
+
+                        <div class="review-section">
+                            <h3>Location</h3>
+                            <div class="review-item">
+                                <div class="review-label">Full Address:</div>
+                                <div class="review-value" id="review-fullAddress"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="wizard-navigation">
+                        <button type="button" class="btn btn-secondary" id="prevBtn" onclick="previousStep()">
+                            ← Previous
+                        </button>
+                        <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                            Next →
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">
+                            Submit Job Posting
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Texas Cities Data -->
+    <script src="texas-cities-data.js"></script>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 8;
+        let formData = {};
+        let hasUnsavedChanges = false;
+        let isSubmitting = false;
+
+        // Check authentication on page load
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/status');
+                const data = await response.json();
+
+                if (data.authenticated) {
+                    document.getElementById('userName').textContent = data.user.name;
+                    document.getElementById('authCheck').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                    initializeSalaryDropdown();
+                } else {
+                    window.location.href = '/login.html';
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = '/login.html';
+            }
         }
 
-        alert(jobId ? 'Job updated successfully!' : 'Job created successfully!');
-        cancelJobForm();
-        loadJobs();
-      } catch (error) {
-        alert('Error: ' + error.message);
-      }
-    }
-
-    async function editJob(id) {
-      try {
-        const response = await fetch(`/api/jobs/${id}`);
-        const job = await response.json();
-        showJobForm(job);
-      } catch (error) {
-        alert('Error loading job: ' + error.message);
-      }
-    }
-
-    async function toggleJobStatus(id, currentStatus) {
-      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-      const confirmMsg = newStatus === 'inactive'
-        ? 'Are you sure you want to deactivate this job? New resumes will not be compared against it.'
-        : 'Activate this job? New resumes will be compared against it.';
-
-      if (!confirm(confirmMsg)) return;
-
-      try {
-        const response = await fetch(`/api/jobs/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: newStatus })
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.error || 'Failed to update job status');
+        // Initialize salary dropdown with values 1-100
+        function initializeSalaryDropdown() {
+            const salarySelect = document.getElementById('salary');
+            for (let i = 1; i <= 100; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `$${i}.00`;
+                salarySelect.appendChild(option);
+            }
         }
 
-        loadJobs();
-      } catch (error) {
-        alert('Error: ' + error.message);
-      }
-    }
-
-    async function deleteJob(id) {
-      if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
-        return;
-      }
-
-      try {
-        const response = await fetch(`/api/jobs/${id}`, {
-          method: 'DELETE'
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.error || 'Failed to delete job');
+        // Initialize Texas cities datalist
+        function initializeTexasCitiesDatalist() {
+            const datalist = document.getElementById('texasCitiesList');
+            texasCities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                datalist.appendChild(option);
+            });
         }
 
-        alert('Job deleted successfully!');
-        loadJobs();
-      } catch (error) {
-        alert('Error: ' + error.message);
-      }
-    }
+        // Setup ZIP code auto-populate functionality
+        function setupZipCodeAutocomplete() {
+            const zipCodeInput = document.getElementById('zipCode');
+            const cityInput = document.getElementById('city');
+            const zipCodeHint = document.getElementById('zipCodeHint');
 
-    // Load jobs on page load
-    loadJobs();
-  </script>
+            zipCodeInput.addEventListener('input', function(e) {
+                const zipCode = e.target.value;
+
+                // Only process when we have 5 digits
+                if (zipCode.length === 5 && /^\d{5}$/.test(zipCode)) {
+                    // Check if it's a valid Texas ZIP code
+                    if (isValidTexasZipCode(zipCode)) {
+                        // Try to find the city for this ZIP code
+                        const city = getCityByZipCode(zipCode);
+
+                        if (city) {
+                            cityInput.value = city;
+                            zipCodeHint.textContent = `✓ ZIP code belongs to ${city}, Texas`;
+                            zipCodeHint.style.color = '#10b981';
+                        } else {
+                            zipCodeHint.textContent = '✓ Valid Texas ZIP code';
+                            zipCodeHint.style.color = '#10b981';
+                        }
+                    } else {
+                        zipCodeHint.textContent = '⚠️ This doesn\'t appear to be a valid Texas ZIP code';
+                        zipCodeHint.style.color = '#EF4444';
+                    }
+                } else if (zipCode.length > 0) {
+                    zipCodeHint.textContent = 'Enter 5-digit ZIP code';
+                    zipCodeHint.style.color = '#666';
+                } else {
+                    zipCodeHint.textContent = 'Enter 5-digit ZIP code';
+                    zipCodeHint.style.color = '#666';
+                }
+            });
+
+            // Validate ZIP code on blur
+            zipCodeInput.addEventListener('blur', function(e) {
+                const zipCode = e.target.value;
+
+                if (zipCode.length === 5 && !isValidTexasZipCode(zipCode)) {
+                    alert('⚠️ Warning: The ZIP code you entered doesn\'t appear to be in Texas. Please verify the ZIP code is correct.');
+                }
+            });
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/login.html';
+            }
+        }
+
+        // Go home function with unsaved changes check
+        function goHome() {
+            if (hasUnsavedChanges && !isSubmitting) {
+                const confirmed = confirm('All changes will be discarded. Are you sure you want to cancel edits?');
+                if (confirmed) {
+                    hasUnsavedChanges = false;
+                    window.location.href = '/';
+                }
+            } else {
+                window.location.href = '/';
+            }
+        }
+
+        // Track form changes
+        function trackFormChanges() {
+            const form = document.getElementById('jobForm');
+            const inputs = form.querySelectorAll('input, textarea, select');
+
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    hasUnsavedChanges = true;
+                });
+                input.addEventListener('change', () => {
+                    hasUnsavedChanges = true;
+                });
+            });
+        }
+
+        // Warn before leaving page with unsaved changes
+        window.addEventListener('beforeunload', (e) => {
+            if (hasUnsavedChanges && !isSubmitting) {
+                e.preventDefault();
+                e.returnValue = 'All changes will be discarded. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        });
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            // Update step indicators
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                const stepNumber = index + 1;
+                if (stepNumber < currentStep) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else if (stepNumber === currentStep) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
+            });
+
+            // Update buttons
+            document.getElementById('prevBtn').style.display = currentStep === 1 ? 'none' : 'block';
+            document.getElementById('nextBtn').style.display = currentStep === totalSteps ? 'none' : 'block';
+            document.getElementById('submitBtn').style.display = currentStep === totalSteps ? 'block' : 'none';
+        }
+
+        // Validate current step
+        function validateCurrentStep() {
+            const currentStepContent = document.querySelector(`.step-content[data-step="${currentStep}"]`);
+            const inputs = currentStepContent.querySelectorAll('input[required], textarea[required], select[required]');
+
+            for (let input of inputs) {
+                if (!input.value.trim()) {
+                    input.focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Save current step data
+        function saveStepData() {
+            const currentStepContent = document.querySelector(`.step-content[data-step="${currentStep}"]`);
+            const inputs = currentStepContent.querySelectorAll('input, textarea, select');
+
+            inputs.forEach(input => {
+                formData[input.name] = input.value;
+            });
+        }
+
+        // Next step
+        function nextStep() {
+            if (!validateCurrentStep()) {
+                alert('Please fill in all required fields before continuing.');
+                return;
+            }
+
+            saveStepData();
+
+            if (currentStep < totalSteps) {
+                // Hide current step
+                document.querySelector(`.step-content[data-step="${currentStep}"]`).classList.remove('active');
+
+                // Show next step
+                currentStep++;
+                document.querySelector(`.step-content[data-step="${currentStep}"]`).classList.add('active');
+
+                // If we're on the review step, populate review data
+                if (currentStep === totalSteps) {
+                    populateReview();
+                }
+
+                updateProgress();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Previous step
+        function previousStep() {
+            if (currentStep > 1) {
+                // Hide current step
+                document.querySelector(`.step-content[data-step="${currentStep}"]`).classList.remove('active');
+
+                // Show previous step
+                currentStep--;
+                document.querySelector(`.step-content[data-step="${currentStep}"]`).classList.add('active');
+
+                updateProgress();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Populate review step
+        function populateReview() {
+            document.getElementById('review-title').textContent = formData.title || '';
+            document.getElementById('review-description').textContent = formData.description || '';
+            document.getElementById('review-experience').textContent = formData.experienceLevel || '';
+            document.getElementById('review-education').textContent = formData.education || '';
+            document.getElementById('review-requiredSkills').textContent = formData.requiredSkills || '';
+            document.getElementById('review-preferredSkills').textContent = formData.preferredSkills || 'N/A';
+            document.getElementById('review-accountManager').textContent = formData.accountManager || '';
+            document.getElementById('review-sector').textContent = formData.sector || '';
+            document.getElementById('review-jobType').textContent = formData.jobType || '';
+            document.getElementById('review-salary').textContent = formData.salary ? `$${formData.salary}.00/hour` : '';
+
+            const fullAddress = `${formData.address}, ${formData.city}, TX ${formData.zipCode}`;
+            document.getElementById('review-fullAddress').textContent = fullAddress;
+        }
+
+        // Submit form
+        document.getElementById('jobForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            saveStepData();
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            const jobData = {
+                title: formData.title,
+                description: formData.description,
+                experience_level: formData.experienceLevel,
+                education_requirements: formData.education,
+                required_skills: formData.requiredSkills,
+                preferred_skills: formData.preferredSkills || '',
+                account_manager: formData.accountManager,
+                sector: formData.sector,
+                job_type: formData.jobType,
+                salary_hourly: formData.salary,
+                job_site_address: `${formData.address}, ${formData.city}, TX ${formData.zipCode}`
+            };
+
+            try {
+                const response = await fetch('/api/jobs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(jobData)
+                });
+
+                if (response.ok) {
+                    isSubmitting = true;
+                    hasUnsavedChanges = false;
+                    alert('✅ Job posted successfully!');
+                    window.location.href = '/manage-jobs.html';
+                } else {
+                    const error = await response.json();
+                    document.getElementById('errorMessage').textContent = error.error || 'Failed to create job';
+                    document.getElementById('errorMessage').style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Job Posting';
+                }
+            } catch (error) {
+                console.error('Submit error:', error);
+                document.getElementById('errorMessage').textContent = 'An error occurred. Please try again.';
+                document.getElementById('errorMessage').style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Job Posting';
+            }
+        });
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            updateProgress();
+            trackFormChanges();
+            initializeTexasCitiesDatalist();
+            setupZipCodeAutocomplete();
+        });
+    </script>
 </body>
 </html>

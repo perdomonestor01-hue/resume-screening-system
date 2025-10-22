@@ -20,7 +20,7 @@
       <div class="nav-links">
         <a href="/" class="active">Upload</a>
         <a href="/dashboard.html">Dashboard</a>
-        <a href="/jobs.html">Jobs</a>
+        <a href="/manage-jobs.html">Jobs</a>
       </div>
     </div>
   </nav>
@@ -46,6 +46,74 @@
       </div>
 
       <div id="uploadStatus" class="upload-status" style="display: none;"></div>
+
+      <!-- AI Recruiter Processing Interface -->
+      <div id="loadingBar" class="ai-processing-container" style="display: none;">
+        <div class="ai-processing-content">
+          <!-- AI Avatar -->
+          <div class="ai-avatar">
+            <div class="ai-avatar-circle">
+              <span class="ai-icon">🤖</span>
+            </div>
+            <div class="ai-status-pulse"></div>
+          </div>
+
+          <!-- Processing Header -->
+          <div class="ai-header">
+            <h3 id="aiProcessingHeader">AI Recruiter</h3>
+            <span class="ai-status-badge" id="aiStatusBadge">Processing</span>
+          </div>
+
+          <!-- AI Thinking Messages -->
+          <div class="ai-thinking-box">
+            <div class="thinking-indicator">
+              <span class="thinking-dot"></span>
+              <span class="thinking-dot"></span>
+              <span class="thinking-dot"></span>
+            </div>
+            <p id="aiThinkingMessage" class="ai-message">I'm processing your resume...</p>
+          </div>
+
+          <!-- Processing Steps -->
+          <div class="ai-steps-container">
+            <div class="ai-step" id="step1">
+              <div class="step-icon">📄</div>
+              <span class="step-text">Reading resume</span>
+              <div class="step-status">⏳</div>
+            </div>
+            <div class="ai-step" id="step2">
+              <div class="step-icon">🔍</div>
+              <span class="step-text">Extracting information</span>
+              <div class="step-status">⏳</div>
+            </div>
+            <div class="ai-step" id="step3">
+              <div class="step-icon">🧠</div>
+              <span class="step-text">Analyzing experience</span>
+              <div class="step-status">⏳</div>
+            </div>
+            <div class="ai-step" id="step4">
+              <div class="step-icon">🎯</div>
+              <span class="step-text">Matching jobs</span>
+              <div class="step-status">⏳</div>
+            </div>
+            <div class="ai-step" id="step5">
+              <div class="step-icon">📊</div>
+              <span class="step-text">Calculating scores</span>
+              <div class="step-status">⏳</div>
+            </div>
+            <div class="ai-step" id="step6">
+              <div class="step-icon">💡</div>
+              <span class="step-text">Generating recommendations</span>
+              <div class="step-status">⏳</div>
+            </div>
+          </div>
+
+          <!-- Progress Bar (subtle) -->
+          <div class="progress-bar-subtle">
+            <div class="progress-fill-subtle" id="progressFill"></div>
+          </div>
+        </div>
+      </div>
 
       <div id="resultsSection" class="results-section" style="display: none;">
         <h3>✅ Resume Processed Successfully!</h3>
@@ -147,19 +215,35 @@
         return;
       }
 
-      // Show uploading status
-      showStatus('Uploading and processing resume...', 'loading');
+      // Hide previous results and status
+      uploadStatus.style.display = 'none';
       resultsSection.style.display = 'none';
+
+      // Show loading bar - Step 1
+      showLoadingBar();
 
       // Upload file
       const formData = new FormData();
       formData.append('resume', file);
 
       try {
+        // Stage 1: Initial processing message
+        await new Promise(resolve => setTimeout(resolve, 600));
+        updateLoadingProgress(15);
+
+        // Stage 2: Reading resume
+        await new Promise(resolve => setTimeout(resolve, 700));
+        updateLoadingProgress(25);
+
+        // Start the actual upload
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         });
+
+        // Stage 3: Extracting information
+        await new Promise(resolve => setTimeout(resolve, 800));
+        updateLoadingProgress(40);
 
         const data = await response.json();
 
@@ -167,9 +251,128 @@
           throw new Error(data.error || 'Upload failed');
         }
 
+        // Stage 4: Analyzing experience (AI thinking time)
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        updateLoadingProgress(60);
+
+        // Stage 5: Comparing against jobs (main AI work)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        updateLoadingProgress(75);
+
+        // Stage 6: Calculating scores
+        await new Promise(resolve => setTimeout(resolve, 800));
+        updateLoadingProgress(90);
+
+        // Final stage: Generating recommendations
+        await new Promise(resolve => setTimeout(resolve, 700));
+        updateLoadingProgress(100);
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        hideLoadingBar();
         showResults(data);
       } catch (error) {
+        hideLoadingBar();
         showError('Error: ' + error.message);
+      }
+    }
+
+    // AI Processing stages
+    const aiStages = [
+      { step: 1, percent: 0, message: "AI Recruiter is processing your resume...", icon: "📄" },
+      { step: 1, percent: 15, message: "I'm reading the resume content...", icon: "📄" },
+      { step: 2, percent: 25, message: "I'm extracting candidate information...", icon: "🔍" },
+      { step: 3, percent: 40, message: "I'm analyzing work experience and skills...", icon: "🧠" },
+      { step: 4, percent: 60, message: "I'm comparing against active job requirements...", icon: "🎯" },
+      { step: 5, percent: 75, message: "I'm calculating match scores and compatibility...", icon: "📊" },
+      { step: 6, percent: 90, message: "I'm generating personalized recommendations...", icon: "💡" },
+      { step: 6, percent: 100, message: "Analysis complete! Preparing your results...", icon: "✅" }
+    ];
+
+    let currentStageIndex = 0;
+
+    function showLoadingBar() {
+      const loadingBar = document.getElementById('loadingBar');
+      loadingBar.style.display = 'flex';
+      currentStageIndex = 0;
+      updateAIStage(0);
+    }
+
+    function hideLoadingBar() {
+      const loadingBar = document.getElementById('loadingBar');
+      loadingBar.style.display = 'none';
+      // Reset all steps
+      for (let i = 1; i <= 6; i++) {
+        const stepEl = document.getElementById(`step${i}`);
+        if (stepEl) {
+          stepEl.classList.remove('active', 'completed');
+          const statusEl = stepEl.querySelector('.step-status');
+          if (statusEl) statusEl.textContent = '⏳';
+        }
+      }
+    }
+
+    function updateAIStage(stageIndex) {
+      if (stageIndex >= aiStages.length) return;
+
+      const stage = aiStages[stageIndex];
+      currentStageIndex = stageIndex;
+
+      // Update progress bar
+      const progressFill = document.getElementById('progressFill');
+      progressFill.style.width = stage.percent + '%';
+
+      // Update thinking message with animation
+      const messageEl = document.getElementById('aiThinkingMessage');
+      messageEl.style.animation = 'none';
+      setTimeout(() => {
+        messageEl.textContent = stage.message;
+        messageEl.style.animation = 'fadeInMessage 0.5s ease-out';
+      }, 50);
+
+      // Update step status
+      updateStepStatus(stage.step);
+    }
+
+    function updateStepStatus(activeStep) {
+      for (let i = 1; i <= 6; i++) {
+        const stepEl = document.getElementById(`step${i}`);
+        const statusEl = stepEl?.querySelector('.step-status');
+
+        if (!stepEl || !statusEl) continue;
+
+        if (i < activeStep) {
+          // Completed step
+          stepEl.classList.remove('active');
+          stepEl.classList.add('completed');
+          statusEl.textContent = '✅';
+        } else if (i === activeStep) {
+          // Active step
+          stepEl.classList.remove('completed');
+          stepEl.classList.add('active');
+          statusEl.textContent = '⏳';
+        } else {
+          // Pending step
+          stepEl.classList.remove('active', 'completed');
+          statusEl.textContent = '⏳';
+        }
+      }
+    }
+
+    function advanceAIStage() {
+      currentStageIndex++;
+      if (currentStageIndex < aiStages.length) {
+        updateAIStage(currentStageIndex);
+      }
+    }
+
+    function updateLoadingProgress(percent, stepMessage) {
+      // Find the closest stage to the percent
+      for (let i = 0; i < aiStages.length; i++) {
+        if (aiStages[i].percent >= percent) {
+          updateAIStage(i);
+          break;
+        }
       }
     }
 
@@ -212,11 +415,11 @@
                   <p style="margin: 5px 0 0 0; color: #78350f; font-size: 13px;">${comp.employment_gap_details}</p>
                 </div>
               ` : ''}
-              ${comp.commute_info && comp.commute_info !== 'Commute information not available' && comp.commute_info !== 'Address not found in resume' ? `
-                <div style="background: ${comp.commute_reasonable ? '#d1fae5' : '#fee2e2'}; border-left: 4px solid ${comp.commute_reasonable ? '#10b981' : '#ef4444'}; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
-                  <strong style="color: ${comp.commute_reasonable ? '#065f46' : '#991b1b'};">🚗 COMMUTE: ${comp.commute_info}</strong>
-                  <p style="margin: 5px 0 0 0; color: ${comp.commute_reasonable ? '#065f46' : '#991b1b'}; font-size: 13px;">
-                    ${comp.commute_reasonable ? '✓ Reasonable commute distance' : '⚠️ Long commute - verify candidate is willing to travel'}
+              ${comp.distance_info && comp.distance_info.success ? `
+                <div style="background: ${comp.distance_info.commute_reasonable === true ? '#d1fae5' : comp.distance_info.commute_reasonable === false ? '#fee2e2' : '#f3f4f6'}; border-left: 4px solid ${comp.distance_info.commute_reasonable === true ? '#10b981' : comp.distance_info.commute_reasonable === false ? '#ef4444' : '#9ca3af'}; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+                  <strong style="color: ${comp.distance_info.commute_reasonable === true ? '#065f46' : comp.distance_info.commute_reasonable === false ? '#991b1b' : '#374151'};">🚗 Distance: ${comp.distance_info.distance_miles} miles (${comp.distance_info.distance_km} km)</strong>
+                  <p style="margin: 5px 0 0 0; color: ${comp.distance_info.commute_reasonable === true ? '#065f46' : comp.distance_info.commute_reasonable === false ? '#991b1b' : '#374151'}; font-size: 13px;">
+                    ${comp.distance_info.commute_description || (comp.distance_info.commute_reasonable === true ? '✓ Reasonable commute distance' : comp.distance_info.commute_reasonable === false ? '⚠️ Long commute - verify candidate is willing to travel' : 'Commute assessment unavailable')}
                   </p>
                 </div>
               ` : ''}
