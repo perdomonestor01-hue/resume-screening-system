@@ -73,6 +73,9 @@ async function initializeServices() {
     // Initialize database tables
     await initializeDatabaseTables();
 
+    // Auto-create admin accounts if none exist
+    await initializeAdminAccounts();
+
     // Initialize email notifier
     await notifier.init();
 
@@ -113,6 +116,73 @@ function initializeDatabaseTables() {
       } else {
         console.log('✓ Database tables initialized');
         resolve();
+      }
+    });
+  });
+}
+
+// Auto-create admin accounts if none exist
+function initializeAdminAccounts() {
+  return new Promise((resolve, reject) => {
+    // Check if any admin accounts exist
+    db.get(`SELECT COUNT(*) as count FROM users WHERE role = 'admin'`, async (err, result) => {
+      if (err) {
+        console.error('Error checking admin accounts:', err);
+        return resolve(); // Don't fail startup
+      }
+
+      if (result.count > 0) {
+        console.log(`✓ Admin accounts exist (${result.count} found)`);
+        return resolve();
+      }
+
+      // Create default admin accounts
+      console.log('Creating default admin accounts...');
+      const admins = [
+        {
+          name: 'Admin User',
+          email: 'admin@customworkforcesolutionsllc.com',
+          password: 'admin123'
+        },
+        {
+          name: 'Lorie Cavil',
+          email: 'lcavil@customworkforcesolutionsllc.com',
+          password: 'LorieCWS2025!'
+        },
+        {
+          name: 'A. Cavil',
+          email: 'acavil@customworkforcesolutionsllc.com',
+          password: 'AcavilCWS2025!'
+        }
+      ];
+
+      let completed = 0;
+      for (const admin of admins) {
+        bcrypt.hash(admin.password, 10, (hashErr, hash) => {
+          if (hashErr) {
+            console.error(`Error hashing password for ${admin.name}:`, hashErr);
+            completed++;
+            if (completed === admins.length) resolve();
+            return;
+          }
+
+          db.run(`
+            INSERT INTO users (name, email, password_hash, role)
+            VALUES (?, ?, ?, 'admin')
+          `, [admin.name, admin.email, hash], (insertErr) => {
+            if (insertErr) {
+              console.error(`Failed to create ${admin.name}:`, insertErr);
+            } else {
+              console.log(`✓ Created admin: ${admin.email}`);
+            }
+
+            completed++;
+            if (completed === admins.length) {
+              console.log('✓ All admin accounts created');
+              resolve();
+            }
+          });
+        });
       }
     });
   });
