@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audit Trail - Resume Screening System</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Modern CSS Variables System */
+    :root {
+      /* CWS Brand Colors - Official Palette */
+      --cws-blue: #A4C4DE;
+      --cws-blue-dark: #8AAFE0;
+      --cws-blue-light: #CEDEEC;
+      --cws-black: #000000;
+      --cws-charcoal: #161616;
+      --cws-dark-gray: #292C2E;
+
+      /* Executive Dark Color Palette */
+      --executive-charcoal: #161616;
+      --executive-slate: #1a1a1a;
+      --executive-graphite: #292C2E;
+      --executive-steel: #3a3a3a;
+
+      /* Semantic Colors */
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --success-dark: #065f46;
+      --error: #ef4444;
+      --error-light: #fee2e2;
+      --error-dark: #991b1b;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --warning-dark: #92400e;
+      --info: #3b82f6;
+      --info-light: #dbeafe;
+      --info-dark: #1e40af;
+
+      /* Background System - CWS Brand */
+      --bg-primary: #000000;
+      --bg-secondary: #161616;
+      --bg-tertiary: #1a1a1a;
+      --bg-card: #161616;
+      --bg-elevated: #292C2E;
+
+      /* Text Colors - CWS Brand */
+      --text-primary: #FFFFFF;
+      --text-secondary: #E2E2E2;
+      --text-tertiary: #919191;
+      --text-muted: #898989;
+
+      /* Spacing System */
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-5: 1.25rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-10: 2.5rem;
+      --space-12: 3rem;
+      --space-16: 4rem;
+
+      /* Border Radius */
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --radius-2xl: 1.5rem;
+
+      /* Shadows - CWS Brand */
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+      --shadow-glow: 0 0 20px rgba(164, 196, 222, 0.4);
+
+      /* Transitions */
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Global Body Styling - CWS Brand */
+    body {
+      background: linear-gradient(135deg, #000000 0%, #161616 50%, #000000 100%);
+      min-height: 100vh;
+      color: var(--text-primary);
+    }
+
+    /* Enhanced Header with CWS Brand Gradient */
+    .audit-header {
+      background: linear-gradient(135deg, #000000 0%, #161616 30%, #A4C4DE 100%);
+      color: white;
+      padding: var(--space-12);
+      margin-bottom: var(--space-8);
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-xl), var(--shadow-glow);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInDown var(--transition-slow) ease-out;
+      border: 1px solid rgba(164, 196, 222, 0.3);
+    }
+
+    .audit-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .audit-header h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      margin: 0 0 var(--space-3) 0;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .audit-header p {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      opacity: 0.95;
+      margin: 0;
+      font-weight: 300;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    /* Premium Stats Grid with Enhanced Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-6);
+      margin-bottom: var(--space-8);
+      animation: fadeInUp var(--transition-slow) ease-out 0.1s;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      padding: var(--space-8);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(164, 196, 222, 0.2);
+      position: relative;
+      overflow: hidden;
+      transition: all var(--transition-base);
+      animation: slideInUp var(--transition-slow) ease-out;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--cws-blue-dark), var(--cws-blue));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition-base);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl), 0 0 30px rgba(164, 196, 222, 0.3);
+      border-color: rgba(164, 196, 222, 0.5);
+    }
+
+    .stat-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--cws-blue), var(--cws-blue-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      margin-bottom: var(--space-4);
+      box-shadow: 0 4px 12px rgba(164, 196, 222, 0.4);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .stat-card:nth-child(2) .stat-icon {
+      background: linear-gradient(135deg, var(--cws-blue-light), var(--cws-blue));
+      box-shadow: 0 4px 12px rgba(164, 196, 222, 0.5);
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--cws-blue-dark), var(--cws-blue-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: var(--space-3) 0;
+      line-height: 1;
+    }
+
+    .stat-trend {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.875rem;
+      color: var(--success);
+      font-weight: 500;
+      margin-top: var(--space-3);
+    }
+
+    /* Modern Filters Container */
+    .filters-container {
+      background: var(--bg-card);
+      padding: var(--space-8);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      margin-bottom: var(--space-6);
+      border: 1px solid rgba(164, 196, 222, 0.1);
+      animation: fadeInUp var(--transition-slow) ease-out 0.2s;
+    }
+
+    .filters-container h3 {
+      margin: 0 0 var(--space-6) 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-5);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .filter-group label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .filter-group select {
+      background: var(--bg-elevated);
+      border: 1px solid rgba(164, 196, 222, 0.2);
+      color: var(--text-primary);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      transition: all var(--transition-base);
+      cursor: pointer;
+    }
+
+    .filter-group select:hover {
+      border-color: var(--cws-blue);
+      background: var(--bg-secondary);
+    }
+
+    .filter-group select:focus {
+      outline: none;
+      border-color: var(--cws-blue);
+      box-shadow: 0 0 0 3px rgba(164, 196, 222, 0.2);
+    }
+
+    /* Enhanced Table Design */
+    .table-container {
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      border: 1px solid rgba(164, 196, 222, 0.1);
+      animation: fadeInUp var(--transition-slow) ease-out 0.3s;
+    }
+
+    .audit-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .audit-table thead {
+      background: linear-gradient(135deg, #161616, #292C2E);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .audit-table th {
+      color: var(--text-primary);
+      padding: var(--space-5) var(--space-6);
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid rgba(164, 196, 222, 0.3);
+      white-space: nowrap;
+    }
+
+    .audit-table tbody tr {
+      background: var(--bg-card);
+      transition: all var(--transition-base);
+      border-bottom: 1px solid rgba(164, 196, 222, 0.05);
+    }
+
+    .audit-table tbody tr:nth-child(even) {
+      background: rgba(164, 196, 222, 0.02);
+    }
+
+    .audit-table tbody tr:hover {
+      background: rgba(164, 196, 222, 0.08);
+      transform: scale(1.002);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+
+    .audit-table td {
+      padding: var(--space-5) var(--space-6);
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+
+    /* Premium Action Badges with Icons */
+    .action-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-base);
+      white-space: nowrap;
+    }
+
+    .action-badge:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .action-login-success {
+      background: linear-gradient(135deg, var(--success-light), #d1fae5);
+      color: var(--success-dark);
+      border: 1px solid var(--success);
+    }
+
+    .action-login-failure {
+      background: linear-gradient(135deg, var(--error-light), #fee2e2);
+      color: var(--error-dark);
+      border: 1px solid var(--error);
+    }
+
+    .action-logout {
+      background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+      color: #3730a3;
+      border: 1px solid #6366f1;
+    }
+
+    .action-create-job {
+      background: linear-gradient(135deg, var(--info-light), #dbeafe);
+      color: var(--info-dark);
+      border: 1px solid var(--info);
+    }
+
+    .action-update-job {
+      background: linear-gradient(135deg, var(--warning-light), #fef3c7);
+      color: var(--warning-dark);
+      border: 1px solid var(--warning);
+    }
+
+    .action-delete-job {
+      background: linear-gradient(135deg, #fecaca, #fca5a5);
+      color: #7f1d1d;
+      border: 1px solid #dc2626;
+    }
+
+    .action-view-candidate {
+      background: linear-gradient(135deg, #e9d5ff, #ddd6fe);
+      color: #581c87;
+      border: 1px solid #9333ea;
+    }
+
+    .action-upload-resume {
+      background: linear-gradient(135deg, #ccfbf1, #99f6e4);
+      color: #134e4a;
+      border: 1px solid #14b8a6;
+    }
+
+    /* Enhanced Buttons - CWS Brand */
+    .details-btn {
+      background: linear-gradient(135deg, var(--cws-blue), var(--cws-blue-dark));
+      color: var(--cws-black);
+      border: none;
+      padding: var(--space-2) var(--space-5);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all var(--transition-base);
+      box-shadow: 0 2px 4px rgba(164, 196, 222, 0.3);
+      white-space: nowrap;
+    }
+
+    .details-btn:hover {
+      background: linear-gradient(135deg, var(--cws-blue-light), var(--cws-blue));
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(164, 196, 222, 0.6);
+    }
+
+    .details-btn:active {
+      transform: translateY(0);
+    }
+
+    .export-btn {
+      background: linear-gradient(135deg, var(--cws-blue), var(--cws-blue-dark));
+      color: var(--cws-black);
+      border: none;
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      transition: all var(--transition-base);
+      box-shadow: 0 2px 8px rgba(164, 196, 222, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .export-btn:hover {
+      background: linear-gradient(135deg, var(--cws-blue-light), var(--cws-blue));
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(164, 196, 222, 0.6);
+    }
+
+    /* Stunning Modal Design */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      overflow-y: auto;
+      animation: fadeIn var(--transition-base);
+    }
+
+    .modal-content {
+      background: var(--bg-card);
+      max-width: 900px;
+      margin: var(--space-12) auto;
+      padding: var(--space-10);
+      border-radius: var(--radius-2xl);
+      position: relative;
+      box-shadow: var(--shadow-xl), 0 0 50px rgba(164, 196, 222, 0.3);
+      border: 1px solid rgba(164, 196, 222, 0.2);
+      animation: slideInUp var(--transition-base);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-4);
+      border-bottom: 2px solid rgba(164, 196, 222, 0.2);
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.75rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--cws-blue-dark), var(--cws-blue-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .close-modal {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--bg-elevated);
+      border: 1px solid rgba(164, 196, 222, 0.2);
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .close-modal:hover {
+      background: var(--cws-blue);
+      color: var(--cws-black);
+      transform: rotate(90deg);
+      border-color: var(--cws-blue);
+    }
+
+    .modal-info {
+      background: var(--bg-elevated);
+      padding: var(--space-6);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-6);
+      border-left: 4px solid var(--cws-blue);
+    }
+
+    .modal-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .modal-info-item {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .modal-info-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-tertiary);
+      font-weight: 600;
+    }
+
+    .modal-info-value {
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* Enhanced Diff Viewer */
+    .diff-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-6);
+      margin-top: var(--space-6);
+    }
+
+    .diff-section {
+      background: var(--bg-elevated);
+      padding: var(--space-6);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(164, 196, 222, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .diff-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--cws-blue-dark), var(--cws-blue-light));
+    }
+
+    .diff-section h4 {
+      margin: 0 0 var(--space-4) 0;
+      color: var(--text-primary);
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .diff-section pre {
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      padding: var(--space-4);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      font-size: 0.8125rem;
+      margin: 0;
+      line-height: 1.6;
+      border: 1px solid rgba(164, 196, 222, 0.1);
+      font-family: 'Fira Code', 'Courier New', monospace;
+    }
+
+    /* Premium Pagination - CWS Brand */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: var(--space-3);
+      margin-top: var(--space-8);
+      padding: var(--space-6);
+    }
+
+    .pagination button {
+      background: var(--bg-card);
+      border: 1px solid rgba(164, 196, 222, 0.2);
+      color: var(--text-primary);
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all var(--transition-base);
+      font-size: 0.9375rem;
+    }
+
+    .pagination button:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--cws-blue), var(--cws-blue-dark));
+      color: var(--cws-black);
+      border-color: var(--cws-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(164, 196, 222, 0.4);
+    }
+
+    .pagination button:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .pagination span {
+      color: var(--text-secondary);
+      font-weight: 600;
+      padding: 0 var(--space-4);
+    }
+
+    /* Loading State */
+    .no-data {
+      text-align: center;
+      padding: var(--space-16);
+      color: var(--text-tertiary);
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .audit-header {
+        padding: var(--space-8);
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-row {
+        grid-template-columns: 1fr;
+      }
+
+      .diff-container {
+        grid-template-columns: 1fr;
+      }
+
+      .audit-table {
+        font-size: 0.8125rem;
+      }
+
+      .audit-table th,
+      .audit-table td {
+        padding: var(--space-3) var(--space-4);
+      }
+
+      .modal-content {
+        margin: var(--space-4);
+        padding: var(--space-6);
+      }
+    }
+
+    /* Accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <!-- Top Row: Brand + User Info -->
+      <div>
+        <div class="nav-brand">
+          <h1>Custom Workforce Solutions</h1>
+          <p class="tagline">Find Your Job Match</p>
+        </div>
+        <div class="user-info-section">
+          <span id="userName" class="user-name-display"></span>
+          <button onclick="logout()" class="logout-button">Logout</button>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Navigation Links -->
+      <div class="nav-links">
+        <a href="/">Upload</a>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/manage-jobs.html" id="jobsLink">Jobs</a>
+        <a href="/audit.html" class="active">🔍 Audit Trail</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="audit-header">
+      <h1>
+        <span>🔍</span>
+        <span>Audit Trail</span>
+      </h1>
+      <p>Complete transaction history and user activity monitoring with real-time insights</p>
+    </div>
+
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-label">Total Logs</div>
+        <div class="stat-value" id="stat-total">-</div>
+        <div class="stat-trend">
+          <span>↑</span>
+          <span>All activity tracked</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-label">Active Users</div>
+        <div class="stat-value" id="stat-users">-</div>
+        <div class="stat-trend">
+          <span>●</span>
+          <span>Currently monitored</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="filters-container">
+      <h3>
+        <span>🎛️</span>
+        <span>Filter Logs</span>
+      </h3>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>Action Type</label>
+          <select id="filter-action" onchange="applyFilters()">
+            <option value="">All Actions</option>
+            <option value="LOGIN_SUCCESS">Login Success</option>
+            <option value="LOGIN_FAILURE">Login Failure</option>
+            <option value="LOGOUT">Logout</option>
+            <option value="CREATE_JOB">Create Job</option>
+            <option value="UPDATE_JOB">Update Job</option>
+            <option value="DELETE_JOB">Delete Job</option>
+            <option value="VIEW_CANDIDATE">View Candidate</option>
+            <option value="UPLOAD_RESUME">Upload Resume</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Resource Type</label>
+          <select id="filter-resource" onchange="applyFilters()">
+            <option value="">All Resources</option>
+            <option value="user">User</option>
+            <option value="job">Job</option>
+            <option value="candidate">Candidate</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Limit</label>
+          <select id="filter-limit" onchange="applyFilters()">
+            <option value="50">50 records</option>
+            <option value="100" selected>100 records</option>
+            <option value="250">250 records</option>
+            <option value="500">500 records</option>
+          </select>
+        </div>
+        <div class="filter-group" style="align-items: flex-end;">
+          <button class="export-btn" onclick="exportToCSV()">
+            <span>📥</span>
+            <span>Export CSV</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>⏰ Timestamp</th>
+            <th>👤 User</th>
+            <th>⚡ Action</th>
+            <th>📦 Resource</th>
+            <th>📝 Details</th>
+            <th>🌐 IP Address</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="audit-logs-body">
+          <tr>
+            <td colspan="7" class="no-data">Loading audit logs...</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+
+  <!-- Details Modal -->
+  <div id="details-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Audit Log Details</h2>
+        <button class="close-modal" onclick="closeModal()">&times;</button>
+      </div>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentOffset = 0;
+    let currentLogs = [];
+
+    // Action type icon mapping
+    const actionIcons = {
+      'LOGIN_SUCCESS': '✓',
+      'LOGIN_FAILURE': '✗',
+      'LOGOUT': '→',
+      'CREATE_JOB': '+',
+      'UPDATE_JOB': '✎',
+      'DELETE_JOB': '×',
+      'VIEW_CANDIDATE': '👁',
+      'UPLOAD_RESUME': '↑'
+    };
+
+    async function loadStats() {
+      try {
+        const response = await fetch('/api/audit-logs/stats');
+        if (response.ok) {
+          const stats = await response.json();
+          document.getElementById('stat-total').textContent = (stats.total_logs || 0).toLocaleString();
+          document.getElementById('stat-users').textContent = (stats.active_users || 0).toLocaleString();
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    async function loadAuditLogs() {
+      try {
+        const actionType = document.getElementById('filter-action').value;
+        const resourceType = document.getElementById('filter-resource').value;
+        const limit = document.getElementById('filter-limit').value;
+
+        const params = new URLSearchParams();
+        if (actionType) params.append('action_type', actionType);
+        if (resourceType) params.append('resource_type', resourceType);
+        params.append('limit', limit);
+        params.append('offset', currentOffset);
+
+        const response = await fetch(`/api/audit-logs?${params}`);
+        if (response.status === 403) {
+          alert('Admin access required to view audit logs');
+          window.location.href = '/';
+          return;
+        }
+
+        if (response.ok) {
+          currentLogs = await response.json();
+          displayAuditLogs(currentLogs);
+        } else {
+          throw new Error('Failed to load audit logs');
+        }
+      } catch (error) {
+        console.error('Error loading audit logs:', error);
+        document.getElementById('audit-logs-body').innerHTML =
+          '<tr><td colspan="7" class="no-data">Error loading audit logs</td></tr>';
+      }
+    }
+
+    function displayAuditLogs(logs) {
+      const tbody = document.getElementById('audit-logs-body');
+
+      if (logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="no-data">No audit logs found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = logs.map(log => {
+        const actionClass = `action-${log.action_type.toLowerCase().replace(/_/g, '-')}`;
+        const timestamp = new Date(log.created_at).toLocaleString();
+        const hasDetails = log.before_value || log.after_value;
+        const actionIcon = actionIcons[log.action_type] || '•';
+
+        return `
+          <tr>
+            <td>${timestamp}</td>
+            <td>${log.user_email || 'System'}</td>
+            <td>
+              <span class="action-badge ${actionClass}">
+                <span>${actionIcon}</span>
+                <span>${log.action_type.replace(/_/g, ' ')}</span>
+              </span>
+            </td>
+            <td>${log.resource_type} #${log.resource_id || '-'}</td>
+            <td>${log.details || '-'}</td>
+            <td>${log.ip_address || '-'}</td>
+            <td>
+              ${hasDetails ? `<button class="details-btn" onclick='viewDetails(${JSON.stringify(log).replace(/'/g, "&#39;")})'>View</button>` : '-'}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      updatePagination();
+    }
+
+    function viewDetails(log) {
+      const modal = document.getElementById('details-modal');
+      const content = document.getElementById('modal-content');
+
+      let html = `
+        <div class="modal-info">
+          <div class="modal-info-grid">
+            <div class="modal-info-item">
+              <div class="modal-info-label">Action Type</div>
+              <div class="modal-info-value">${log.action_type}</div>
+            </div>
+            <div class="modal-info-item">
+              <div class="modal-info-label">User</div>
+              <div class="modal-info-value">${log.user_email || 'System'}</div>
+            </div>
+            <div class="modal-info-item">
+              <div class="modal-info-label">Timestamp</div>
+              <div class="modal-info-value">${new Date(log.created_at).toLocaleString()}</div>
+            </div>
+            <div class="modal-info-item">
+              <div class="modal-info-label">IP Address</div>
+              <div class="modal-info-value">${log.ip_address || 'N/A'}</div>
+            </div>
+            <div class="modal-info-item" style="grid-column: 1 / -1;">
+              <div class="modal-info-label">User Agent</div>
+              <div class="modal-info-value" style="word-break: break-word;">${log.user_agent || 'N/A'}</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      if (log.before_value && log.after_value) {
+        html += `
+          <div class="diff-container">
+            <div class="diff-section">
+              <h4>📄 Before</h4>
+              <pre>${JSON.stringify(log.before_value, null, 2)}</pre>
+            </div>
+            <div class="diff-section">
+              <h4>📄 After</h4>
+              <pre>${JSON.stringify(log.after_value, null, 2)}</pre>
+            </div>
+          </div>
+        `;
+      } else if (log.before_value) {
+        html += `
+          <div class="diff-section">
+            <h4>🗑️ Deleted Data</h4>
+            <pre>${JSON.stringify(log.before_value, null, 2)}</pre>
+          </div>
+        `;
+      } else if (log.after_value) {
+        html += `
+          <div class="diff-section">
+            <h4>✨ Created Data</h4>
+            <pre>${JSON.stringify(log.after_value, null, 2)}</pre>
+          </div>
+        `;
+      }
+
+      content.innerHTML = html;
+      modal.style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('details-modal').style.display = 'none';
+    }
+
+    function applyFilters() {
+      currentOffset = 0;
+      loadAuditLogs();
+    }
+
+    function updatePagination() {
+      const pagination = document.getElementById('pagination');
+      const limit = parseInt(document.getElementById('filter-limit').value);
+      const hasMore = currentLogs.length === limit;
+      const currentPage = Math.floor(currentOffset / limit) + 1;
+
+      pagination.innerHTML = `
+        <button onclick="previousPage()" ${currentOffset === 0 ? 'disabled' : ''}>
+          ← Previous
+        </button>
+        <span>Page ${currentPage}</span>
+        <button onclick="nextPage()" ${!hasMore ? 'disabled' : ''}>
+          Next →
+        </button>
+      `;
+    }
+
+    function previousPage() {
+      const limit = parseInt(document.getElementById('filter-limit').value);
+      if (currentOffset >= limit) {
+        currentOffset -= limit;
+        loadAuditLogs();
+      }
+    }
+
+    function nextPage() {
+      const limit = parseInt(document.getElementById('filter-limit').value);
+      if (currentLogs.length === limit) {
+        currentOffset += limit;
+        loadAuditLogs();
+      }
+    }
+
+    function exportToCSV() {
+      if (currentLogs.length === 0) {
+        alert('No data to export');
+        return;
+      }
+
+      const headers = ['Timestamp', 'User', 'Action', 'Resource Type', 'Resource ID', 'Details', 'IP Address'];
+      const rows = currentLogs.map(log => [
+        new Date(log.created_at).toLocaleString(),
+        log.user_email || 'System',
+        log.action_type,
+        log.resource_type,
+        log.resource_id || '',
+        (log.details || '').replace(/"/g, '""'),
+        log.ip_address || ''
+      ]);
+
+      const csv = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `audit-logs-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+
+    async function logout() {
+      try {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/';
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('details-modal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+
+    // Keyboard shortcut for closing modal
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // Load data on page load
+    // Check authentication on page load
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/auth/status');
+        const data = await response.json();
+
+        if (data.authenticated) {
+          document.getElementById('userName').textContent = data.user.name;
+        } else {
+          window.location.href = '/login.html';
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        window.location.href = '/login.html';
+      }
+    }
+
+    // Logout function
+    async function logout() {
+      try {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/login.html';
+      } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = '/login.html';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      loadStats();
+      loadAuditLogs();
+    });
+  </script>
+</body>
+</html>

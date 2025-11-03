@@ -157,6 +157,7 @@ class EmailMonitor {
 
         // Check for resume attachments
         const resumes = parsed.attachments.filter(att => {
+          if (!att.filename) return false;
           const ext = path.extname(att.filename).toLowerCase();
           return ['.pdf', '.docx', '.doc', '.txt'].includes(ext);
         });
@@ -219,6 +220,7 @@ class EmailMonitor {
 
       // Get active jobs and compare
       const jobs = await this.getActiveJobs();
+      const comparisonResults = [];
 
       for (const job of jobs) {
         const comparison = await this.aiComparison.compareResumeToJob(parsed.text, job);
@@ -234,7 +236,40 @@ class EmailMonitor {
             job,
             comparison
           );
+
+          // Collect results for safety coordinator alert
+          comparisonResults.push({
+            job,
+            comparison
+          });
         }
+      }
+
+      // Send safety coordinator alert for high matches (80%+)
+      const highMatches = comparisonResults
+        .filter(({ comparison }) => comparison.match_score >= 80)
+        .map(({ job, comparison }) => ({
+          job_title: job.title,
+          job,
+          match_score: comparison.match_score,
+          strengths: comparison.strengths,
+          gaps: comparison.gaps,
+          distance_info: null
+        }))
+        .sort((a, b) => b.match_score - a.match_score);
+
+      if (highMatches.length > 0) {
+        await this.notifier.sendSafetyCoordinatorAlert(
+          {
+            id: candidateId,
+            name: candidateName,
+            email: candidateEmail,
+            phone: parsed.phone,
+            source: 'email',
+            created_at: new Date()
+          },
+          highMatches
+        );
       }
 
       await this.logEmail(emailData, true, candidateId, null);

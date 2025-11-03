@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         :root {
-            --cws-safety-orange: #FF6B35;
-            --cws-safety-orange-dark: #E55A2B;
-            --cws-navy-blue: #004AAD;
+            --cws-safety-orange: #A4C4DE;
+            --cws-safety-orange-dark: #8AAFE0;
+            --cws-navy-blue: #A4C4DE;
             --cws-light-gray: #F5F5F5;
             --cws-dark-gray: #333333;
             --cws-gray-border: #CCCCCC;
@@ -17,89 +17,32 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--cws-light-gray);
+            background: #0A0A0A;
             margin: 0;
+            padding: 0;
+            color: #FFFFFF;
+        }
+
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
             padding: 20px;
-        }
-
-        .header {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .home-btn {
-            padding: 10px 20px;
-            background: var(--cws-navy-blue);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .home-btn:hover {
-            background: #0066CC;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 74, 173, 0.3);
-        }
-
-        .header h1 {
-            margin: 0;
-            color: var(--cws-navy-blue);
-            font-size: 28px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-name {
-            font-weight: 600;
-            color: var(--cws-dark-gray);
-        }
-
-        .logout-btn {
-            padding: 8px 16px;
-            background: var(--cws-safety-orange);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
         }
 
         .wizard-container {
             max-width: 800px;
             margin: 0 auto;
-            background: white;
+            background: #1F1F1F;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             overflow: hidden;
+            border: 1px solid #2A2A2A;
         }
 
         .progress-bar-container {
-            background: var(--cws-light-gray);
+            background: #1A1A1A;
             padding: 30px;
-            border-bottom: 2px solid var(--cws-gray-border);
+            border-bottom: 2px solid #2A2A2A;
         }
 
         .progress-steps {
@@ -119,14 +62,14 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: white;
-            border: 3px solid var(--cws-gray-border);
+            background: #2A2A2A;
+            border: 3px solid #4A4A4A;
             margin: 0 auto 10px auto;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            color: var(--cws-gray-border);
+            color: #9CA3AF;
             position: relative;
             z-index: 2;
         }
@@ -134,7 +77,8 @@
         .progress-step.active .progress-step-circle {
             background: var(--cws-safety-orange);
             border-color: var(--cws-safety-orange);
-            color: white;
+            color: #000000;
+            font-weight: 700;
         }
 
         .progress-step.completed .progress-step-circle {
@@ -145,7 +89,7 @@
 
         .progress-step-label {
             font-size: 12px;
-            color: #666;
+            color: #9CA3AF;
             font-weight: 500;
         }
 
@@ -160,7 +104,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: var(--cws-gray-border);
+            background: #4A4A4A;
             z-index: 1;
         }
 
@@ -190,13 +134,13 @@
 
         .step-title {
             font-size: 24px;
-            color: var(--cws-navy-blue);
+            color: #FFFFFF;
             margin-bottom: 10px;
             font-weight: 600;
         }
 
         .step-description {
-            color: #666;
+            color: #9CA3AF;
             margin-bottom: 30px;
             font-size: 15px;
         }
@@ -208,7 +152,7 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: var(--cws-dark-gray);
+            color: #F5F5F5;
             font-weight: 500;
             font-size: 15px;
         }
@@ -222,12 +166,14 @@
         .form-group select {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid var(--cws-gray-border);
+            border: 2px solid #4A4A4A;
             border-radius: 6px;
             font-size: 15px;
             font-family: inherit;
             transition: all 0.3s ease;
             box-sizing: border-box;
+            background: #2A2A2A;
+            color: #FFFFFF;
         }
 
         .form-group textarea {
@@ -240,12 +186,13 @@
         .form-group select:focus {
             outline: none;
             border-color: var(--cws-safety-orange);
-            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+            box-shadow: 0 0 0 3px rgba(164, 196, 222, 0.2);
+            background: #333333;
         }
 
         .form-hint {
             font-size: 13px;
-            color: #666;
+            color: #9CA3AF;
             margin-top: 5px;
             font-style: italic;
             transition: color 0.3s ease;
@@ -275,7 +222,7 @@
             justify-content: space-between;
             margin-top: 40px;
             padding-top: 30px;
-            border-top: 2px solid var(--cws-light-gray);
+            border-top: 2px solid #2A2A2A;
         }
 
         .btn {
@@ -289,22 +236,25 @@
         }
 
         .btn-secondary {
-            background: var(--cws-light-gray);
-            color: var(--cws-dark-gray);
+            background: #2A2A2A;
+            color: #F5F5F5;
+            border: 2px solid #4A4A4A;
         }
 
         .btn-secondary:hover {
-            background: var(--cws-gray-border);
+            background: #3A3A3A;
+            border-color: #5A5A5A;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, var(--cws-safety-orange) 0%, var(--cws-safety-orange-dark) 100%);
-            color: white;
+            color: #000000;
+            font-weight: 700;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+            box-shadow: 0 5px 15px rgba(164, 196, 222, 0.4);
         }
 
         .btn:disabled {
@@ -314,9 +264,9 @@
         }
 
         .error-message {
-            background: #FEE2E2;
+            background: #2A1A1A;
             border: 1px solid #EF4444;
-            color: #991B1B;
+            color: #FCA5A5;
             padding: 12px 15px;
             border-radius: 6px;
             margin-bottom: 20px;
@@ -324,15 +274,16 @@
         }
 
         .review-section {
-            background: var(--cws-light-gray);
+            background: #2A2A2A;
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
+            border: 1px solid #4A4A4A;
         }
 
         .review-section h3 {
             margin: 0 0 15px 0;
-            color: var(--cws-navy-blue);
+            color: var(--cws-safety-orange);
             font-size: 18px;
         }
 
@@ -343,13 +294,13 @@
 
         .review-label {
             font-weight: 600;
-            color: #666;
+            color: #9CA3AF;
             width: 180px;
             flex-shrink: 0;
         }
 
         .review-value {
-            color: var(--cws-dark-gray);
+            color: #F5F5F5;
             flex: 1;
         }
 
@@ -359,7 +310,7 @@
         }
 
         .loading-spinner {
-            border: 4px solid var(--cws-light-gray);
+            border: 4px solid #2A2A2A;
             border-top: 4px solid var(--cws-safety-orange);
             border-radius: 50%;
             width: 50px;
@@ -381,20 +332,33 @@
     </div>
 
     <div id="mainContent" style="display: none;">
-        <div class="header">
-            <div class="header-left">
-                <button class="home-btn" onclick="goHome()">
-                    🏠 Home
-                </button>
-                <h1>📋 Add New Job Posting</h1>
-            </div>
-            <div class="user-info">
-                <span class="user-name" id="userName"></span>
-                <button class="logout-btn" onclick="logout()">Logout</button>
-            </div>
-        </div>
+        <nav class="navbar">
+            <div class="container">
+                <!-- Top Row: Brand + User Info -->
+                <div>
+                    <div class="nav-brand">
+                        <h1>Custom Workforce Solutions</h1>
+                        <p class="tagline">Find Your Job Match</p>
+                    </div>
+                    <div class="user-info-section">
+                        <span id="userName" class="user-name-display"></span>
+                        <button onclick="logout()" class="logout-button">Logout</button>
+                    </div>
+                </div>
 
-        <div class="wizard-container">
+                <!-- Bottom Row: Navigation Links -->
+                <div class="nav-links">
+                    <a href="/">Upload</a>
+                    <a href="/dashboard.html">Dashboard</a>
+                    <a href="/manage-jobs.html" class="active">Jobs</a>
+                    <a href="/audit.html" id="auditLink">🔍 Audit Trail</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="page-container">
+            <h2 style="color: #FFFFFF; margin-bottom: 30px; text-align: center;">📋 Add New Job Posting</h2>
+            <div class="wizard-container">
             <div class="progress-bar-container">
                 <div class="progress-steps">
                     <div class="progress-line">
@@ -560,10 +524,21 @@
 
                         <div class="form-group">
                             <label for="salary">Hourly Rate ($/hour) <span class="required">*</span></label>
-                            <select id="salary" name="salary" required>
-                                <option value="">Select hourly rate...</option>
-                            </select>
-                            <div class="form-hint">Select the hourly pay rate for this position</div>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">$</span>
+                                <input
+                                    type="number"
+                                    id="salary"
+                                    name="salary"
+                                    placeholder="17.25"
+                                    step="0.01"
+                                    min="0"
+                                    max="999.99"
+                                    required
+                                    style="padding-left: 28px;"
+                                >
+                            </div>
+                            <div class="form-hint">Enter the exact hourly pay rate (e.g., 17.25, 21.75, 19.98)</div>
                         </div>
                     </div>
 
@@ -681,6 +656,21 @@
             </div>
         </div>
     </div>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-branding">
+                <h3>Custom Workforce Solutions</h3>
+                <p>Find Your Job Match</p>
+            </div>
+            <a href="mailto:AiRecruiter@customworkforcesolutionsllc.com" class="footer-email">
+                AiRecruiter@customworkforcesolutionsllc.com
+            </a>
+            <p class="footer-powered">
+                Powered by Fabien P / AI Resume Screening Technology
+            </p>
+        </div>
+    </footer>
 
     <!-- Include Texas Cities Data -->
     <script src="texas-cities-data.js"></script>
@@ -930,7 +920,7 @@
             document.getElementById('review-accountManager').textContent = formData.accountManager || '';
             document.getElementById('review-sector').textContent = formData.sector || '';
             document.getElementById('review-jobType').textContent = formData.jobType || '';
-            document.getElementById('review-salary').textContent = formData.salary ? `$${formData.salary}.00/hour` : '';
+            document.getElementById('review-salary').textContent = formData.salary ? `$${parseFloat(formData.salary).toFixed(2)}/hour` : '';
 
             const fullAddress = `${formData.address}, ${formData.city}, TX ${formData.zipCode}`;
             document.getElementById('review-fullAddress').textContent = fullAddress;

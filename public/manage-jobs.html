@@ -9,14 +9,24 @@
 <body>
   <nav class="navbar">
     <div class="container">
-      <div class="nav-brand">
-        <h1>Custom Workforce Solutions</h1>
-        <p class="tagline">Your Trusted Partner for Light Industrial Staffing Solutions!</p>
+      <!-- Top Row: Brand + User Info -->
+      <div>
+        <div class="nav-brand">
+          <h1>Custom Workforce Solutions</h1>
+          <p class="tagline">Find Your Job Match</p>
+        </div>
+        <div class="user-info-section">
+          <span id="userName" class="user-name-display"></span>
+          <button onclick="logout()" class="logout-button">Logout</button>
+        </div>
       </div>
+
+      <!-- Bottom Row: Navigation Links -->
       <div class="nav-links">
         <a href="/">Upload</a>
         <a href="/dashboard.html">Dashboard</a>
-        <a href="/manage-jobs.html" class="active">Jobs</a>
+        <a href="/manage-jobs.html" class="active" id="jobsLink">Jobs</a>
+        <a href="/audit.html" id="auditLink">🔍 Audit Trail</a>
       </div>
     </div>
   </nav>
@@ -29,16 +39,121 @@
 
     <div id="jobsLoading" class="loading">Loading jobs...</div>
     <div id="jobsContainer"></div>
+
+    <!-- Edit Job Modal -->
+    <div id="editModal" class="modal" style="display: none;">
+      <div class="modal-content" style="max-width: 800px;">
+        <span class="close-modal" onclick="closeEditModal()">&times;</span>
+        <h2 id="modalTitle">Edit Job</h2>
+        <form id="editJobForm" onsubmit="saveJob(event)">
+          <input type="hidden" id="editJobId">
+
+          <div class="form-group">
+            <label for="editTitle">Job Title *</label>
+            <input type="text" id="editTitle" required>
+          </div>
+
+          <div class="form-group">
+            <label for="editDescription">Description *</label>
+            <textarea id="editDescription" rows="4" required></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editSector">Sector</label>
+              <select id="editSector">
+                <option value="">Select sector...</option>
+                <option value="Light Industrial">Light Industrial</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Warehouse">Warehouse</option>
+                <option value="Distribution">Distribution</option>
+                <option value="Logistics">Logistics</option>
+                <option value="Production">Production</option>
+                <option value="Skilled Trades">Skilled Trades</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="editJobType">Job Type</label>
+              <select id="editJobType">
+                <option value="">Select job type...</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Temporary">Temporary</option>
+                <option value="Contract">Contract</option>
+                <option value="Temp-to-Hire">Temp-to-Hire</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editSalary">Hourly Rate ($)</label>
+              <input type="number" id="editSalary" step="0.01" min="0">
+            </div>
+            <div class="form-group">
+              <label for="editExperience">Experience Level</label>
+              <input type="text" id="editExperience" placeholder="e.g., Entry Level to 2 years and certified">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="editAddress">Job Site Address</label>
+            <input type="text" id="editAddress">
+          </div>
+
+          <div class="form-group">
+            <label for="editAccountManager">Account Manager</label>
+            <select id="editAccountManager">
+              <option value="">Select account manager...</option>
+              <option value="Fabien Perdomo">Fabien Perdomo</option>
+              <option value="Abeni Cavil">Abeni Cavil</option>
+              <option value="Lorie Cavil">Lorie Cavil</option>
+              <option value="Yesenia Dickerson">Yesenia Dickerson</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editEducation">Education Requirements</label>
+            <select id="editEducation">
+              <option value="">Select education requirement...</option>
+              <option value="No formal education required">No Formal Education Required</option>
+              <option value="High School Diploma">High School Diploma</option>
+              <option value="GED">GED</option>
+              <option value="High School Diploma or GED">High School Diploma or GED</option>
+              <option value="Some College">Some College</option>
+              <option value="Associate Degree">Associate Degree</option>
+              <option value="Bachelor's Degree">Bachelor's Degree</option>
+              <option value="Master's Degree or higher">Master's Degree or Higher</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editRequiredSkills">Required Skills</label>
+            <textarea id="editRequiredSkills" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="editPreferredSkills">Preferred Skills</label>
+            <textarea id="editPreferredSkills" rows="3"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" onclick="closeEditModal()" class="btn">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </main>
 
   <footer class="site-footer">
     <div class="footer-content">
       <div class="footer-branding">
         <h3>Custom Workforce Solutions</h3>
-        <p>Your Trusted Partner for Light Industrial Staffing Solutions</p>
+        <p>Find Your Job Match</p>
       </div>
-      <a href="mailto:recruiting@customworkforcesolutions.com" class="footer-email">
-        recruiting@customworkforcesolutions.com
+      <a href="mailto:AiRecruiter@customworkforcesolutionsllc.com" class="footer-email">
+        AiRecruiter@customworkforcesolutionsllc.com
       </a>
       <p class="footer-powered">
         Powered by Fabien P / AI Resume Screening Technology
@@ -48,6 +163,40 @@
 
   <script>
     let allJobs = [];
+
+    // Check authentication on page load
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/auth/status');
+        const data = await response.json();
+
+        if (data.authenticated) {
+          // Only admins can access job management
+          if (data.user.role !== 'admin') {
+            window.location.href = '/dashboard.html';
+            return;
+          }
+
+          document.getElementById('userName').textContent = data.user.name;
+        } else {
+          window.location.href = '/login.html';
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        window.location.href = '/login.html';
+      }
+    }
+
+    // Logout function
+    async function logout() {
+      try {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/login.html';
+      } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = '/login.html';
+      }
+    }
 
     function formatDateTime(dateString) {
       const date = new Date(dateString);
@@ -106,6 +255,7 @@
               <span class="status-badge ${job.status}">${job.status}</span>
             </div>
             <div class="job-actions">
+              <button class="btn-icon" onclick="editJob(${job.id})" title="Edit">✏️</button>
               <button class="btn-icon" onclick="toggleJobStatus(${job.id}, '${job.status}')" title="${job.status === 'active' ? 'Deactivate' : 'Activate'}">
                 ${job.status === 'active' ? '⏸️' : '▶️'}
               </button>
@@ -232,8 +382,101 @@
       }
     }
 
+    async function editJob(jobId) {
+      try {
+        const response = await fetch(`/api/jobs/${jobId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch job details');
+        }
+
+        const job = await response.json();
+
+        // Populate the form
+        document.getElementById('editJobId').value = job.id;
+        document.getElementById('editTitle').value = job.title || '';
+        document.getElementById('editDescription').value = job.description || '';
+        document.getElementById('editSector').value = job.sector || '';
+
+        // Set Job Type dropdown
+        const jobTypeSelect = document.getElementById('editJobType');
+        if (job.job_type) {
+          jobTypeSelect.value = job.job_type;
+        }
+
+        document.getElementById('editSalary').value = job.salary_hourly || '';
+        document.getElementById('editExperience').value = job.experience_level || '';
+
+        document.getElementById('editAddress').value = job.job_site_address || '';
+        document.getElementById('editAccountManager').value = job.account_manager || '';
+        document.getElementById('editEducation').value = job.education_requirements || '';
+        document.getElementById('editRequiredSkills').value = job.required_skills || '';
+        document.getElementById('editPreferredSkills').value = job.preferred_skills || '';
+
+        // Show the modal
+        document.getElementById('editModal').style.display = 'flex';
+      } catch (error) {
+        console.error('Error loading job for edit:', error);
+        alert('Failed to load job details. Please try again.');
+      }
+    }
+
+    async function saveJob(event) {
+      event.preventDefault();
+
+      const jobId = document.getElementById('editJobId').value;
+      const jobData = {
+        title: document.getElementById('editTitle').value,
+        description: document.getElementById('editDescription').value,
+        sector: document.getElementById('editSector').value || null,
+        job_type: document.getElementById('editJobType').value || null,
+        salary_hourly: document.getElementById('editSalary').value || null,
+        experience_level: document.getElementById('editExperience').value || null,
+        job_site_address: document.getElementById('editAddress').value || null,
+        account_manager: document.getElementById('editAccountManager').value || null,
+        education_requirements: document.getElementById('editEducation').value || null,
+        required_skills: document.getElementById('editRequiredSkills').value || null,
+        preferred_skills: document.getElementById('editPreferredSkills').value || null
+      };
+
+      try {
+        const response = await fetch(`/api/jobs/${jobId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(jobData)
+        });
+
+        if (response.ok) {
+          alert('Job updated successfully!');
+          closeEditModal();
+          loadJobs();
+        } else {
+          const error = await response.json();
+          alert(`Error: ${error.error || 'Failed to update job'}`);
+        }
+      } catch (error) {
+        console.error('Error saving job:', error);
+        alert('An error occurred. Please try again.');
+      }
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').style.display = 'none';
+      document.getElementById('editJobForm').reset();
+    }
+
+    // Close modal when clicking outside
+    window.onclick = (event) => {
+      const modal = document.getElementById('editModal');
+      if (event.target === modal) {
+        closeEditModal();
+      }
+    };
+
     // Load jobs on page load
-    window.addEventListener('DOMContentLoaded', loadJobs);
+    window.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      loadJobs();
+    });
   </script>
 </body>
 </html>

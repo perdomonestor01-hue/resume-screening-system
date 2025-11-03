@@ -2,12 +2,19 @@ const fs = require('fs').promises;
 const pdfParse = require('pdf-parse-fork');
 const mammoth = require('mammoth');
 const Tesseract = require('tesseract.js');
+const Anthropic = require('@anthropic-ai/sdk');
 
 /**
  * Resume Parser Service
  * Extracts text content from PDF, DOCX, DOC, TXT, JPG, and PNG files
  */
 class ResumeParser {
+  constructor() {
+    this.anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
+    });
+  }
+
   /**
    * Parse resume file and extract text content
    * @param {string} filePath - Path to the resume file
@@ -33,15 +40,13 @@ class ResumeParser {
       } else if (mimeType === 'text/plain') {
         text = await this.parseTXT(filePath);
       } else if (mimeType === 'image/jpeg' || mimeType === 'image/jpg' || mimeType === 'image/png') {
-        const result = await this.parseImage(filePath);
-        text = result.text;
-        metadata = result.metadata;
+        throw new Error('Image formats (JPG, PNG) are not compatible with this system. Please upload your resume as PDF, DOCX, DOC, or TXT format.');
       } else {
         throw new Error(`Unsupported file type: ${mimeType}`);
       }
 
-      // Extract basic information from the text
-      const extractedInfo = this.extractBasicInfo(text);
+      // Extract basic information using AI (more accurate than regex, especially for OCR)
+      const extractedInfo = await this.extractInfoWithAI(text);
 
       return {
         text: text.trim(),
@@ -157,12 +162,77 @@ class ResumeParser {
   }
 
   /**
+   * Extract contact information using AI (more accurate than regex, especially for OCR text)
+   * @param {string} text - Resume text
+   * @returns {Promise<Object>} - Extracted information
+   */
+  async extractInfoWithAI(text) {
+    try {
+      const prompt = `Extract the contact information from this resume text. The text may be from OCR, so there might be spacing or formatting issues.
+
+Resume Text:
+${text.substring(0, 2000)}
+
+Extract and return ONLY valid JSON in this exact format (no other text):
+{
+  "name": "Full Name" or null,
+  "email": "email@example.com" or null,
+  "phone": "phone number" or null,
+  "address": "Full address including city, state, ZIP" or null
+}
+
+Rules:
+- For name: Extract the person's full name (usually at the top of the resume)
+- For email: Extract valid email address
+- For phone: Extract phone number in any format
+- For address: Extract complete address with city, state, and ZIP code if available
+- If any field is not found, use null
+- Return ONLY the JSON object, no other text`;
+
+      const message = await this.anthropic.messages.create({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 500,
+        temperature: 0,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      });
+
+      let response = message.content[0].text.trim();
+
+      // Remove markdown code blocks if present
+      if (response.startsWith('```json')) {
+        response = response.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      } else if (response.startsWith('```')) {
+        response = response.replace(/^```\s*/, '').replace(/\s*```$/, '');
+      }
+
+      const extracted = JSON.parse(response);
+
+      console.log(`📋 AI extracted info: Name="${extracted.name}", Email="${extracted.email}", Phone="${extracted.phone}", Address="${extracted.address}"`);
+
+      return {
+        name: extracted.name || "Name Not Found",
+        email: extracted.email || null,
+        phone: extracted.phone || null,
+        address: extracted.address || null
+      };
+    } catch (error) {
+      console.error('AI extraction failed, falling back to regex:', error);
+      // Fallback to regex-based extraction
+      return this.extractBasicInfo(text);
+    }
+  }
+
+  /**
    * Extract basic information from resume text
    * Uses simple pattern matching to find common resume elements
+   * (Fallback method if AI extraction fails)
    */
   extractBasicInfo(text) {
     const info = {
-      name: null,
+      name: "Name Not Found",
       email: null,
       phone: null,
       address: null

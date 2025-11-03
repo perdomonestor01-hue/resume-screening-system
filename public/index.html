@@ -13,24 +13,83 @@
 <body>
   <nav class="navbar">
     <div class="container">
-      <div class="nav-brand">
-        <h1>Custom Workforce Solutions</h1>
-        <p class="tagline">Your Trusted Partner for Light Industrial Staffing Solutions!</p>
+      <!-- Top Row: Brand + User Info -->
+      <div>
+        <div class="nav-brand">
+          <h1>Custom Workforce Solutions</h1>
+          <p class="tagline">Find Your Job Match</p>
+        </div>
+        <div class="user-info-section">
+          <span id="userName" class="user-name-display"></span>
+          <button onclick="logout()" class="logout-button">Logout</button>
+        </div>
       </div>
+
+      <!-- Bottom Row: Navigation Links -->
       <div class="nav-links">
         <a href="/" class="active">Upload</a>
         <a href="/dashboard.html">Dashboard</a>
-        <a href="/manage-jobs.html">Jobs</a>
+        <a href="/manage-jobs.html" id="jobsLink" style="display: none;">Jobs</a>
+        <a href="/audit.html" id="auditLink" style="display: none;">🔍 Audit Trail</a>
       </div>
     </div>
   </nav>
 
   <main class="container">
+    <!-- Hero Section with Images -->
+    <div class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">Find Your Job Match</h1>
+        <p class="hero-subtitle">Upload your resume and let our AI-powered system match you with the best manufacturing and warehouse opportunities in the DFW area.</p>
+        <div class="hero-features">
+          <div class="feature-item">
+            <span class="feature-icon">⚡</span>
+            <span>Instant AI Analysis</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🎯</span>
+            <span>Smart Job Matching</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">📍</span>
+            <span>Local DFW Positions</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=600&fit=crop&q=80"
+             alt="Industrial workers in modern warehouse"
+             loading="eager"
+             style="border-radius: 15px; box-shadow: 0 20px 60px rgba(164, 196, 222, 0.3);">
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-number">500+</div>
+        <div class="stat-label">Placements</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">98%</div>
+        <div class="stat-label">Match Rate</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">24hrs</div>
+        <div class="stat-label">Avg Response</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">50+</div>
+        <div class="stat-label">Partner Companies</div>
+      </div>
+    </div>
+
     <div class="upload-section">
       <div class="upload-header">
-        <h2>Upload Resume</h2>
+        <h2>Upload Your Resume</h2>
         <p>Drag and drop your resume or click to browse</p>
-        <p class="subtitle">We accept PDF, DOCX, DOC, TXT, JPG, and PNG files</p>
+        <p class="subtitle">We accept PDF, DOCX, DOC, and TXT files</p>
+        <p class="subtitle" style="color: #f59e0b; font-size: 13px; margin-top: 5px;">⚠️ Note: Image formats (JPG, PNG) are not compatible with this system</p>
       </div>
 
       <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()" style="cursor: pointer;">
@@ -42,7 +101,7 @@
             Browse Files
           </button>
         </div>
-        <input type="file" id="fileInput" accept=".pdf,.docx,.doc,.txt,.jpg,.jpeg,.png,image/jpeg,image/png" style="display: none;">
+        <input type="file" id="fileInput" accept=".pdf,.docx,.doc,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" style="display: none;">
       </div>
 
       <div id="uploadStatus" class="upload-status" style="display: none;"></div>
@@ -132,18 +191,8 @@
         <ol>
           <li><strong>Upload Resume:</strong> Drag and drop or select a resume file</li>
           <li><strong>AI Analysis:</strong> Our AI compares the resume against active job openings</li>
-          <li><strong>Get Results:</strong> View match scores and detailed comparisons instantly</li>
-          <li><strong>Email Alerts:</strong> High-match candidates trigger automatic notifications</li>
+          <li><strong>Get Results:</strong> View match scores and detailed comparisons instantly to your email.</li>
         </ol>
-      </div>
-
-      <div class="info-card">
-        <h3>Alternative: Email Submission</h3>
-        <p>Candidates can also send their resume via email to:</p>
-        <div class="email-box">
-          <strong>recruiting@customworkforcesolutions.com</strong>
-        </div>
-        <p class="small-text">Resumes sent via email are automatically processed and compared against all active jobs.</p>
       </div>
     </div>
   </main>
@@ -152,10 +201,10 @@
     <div class="footer-content">
       <div class="footer-branding">
         <h3>Custom Workforce Solutions</h3>
-        <p>Your Trusted Partner for Light Industrial Staffing Solutions</p>
+        <p>Find Your Job Match</p>
       </div>
-      <a href="mailto:recruiting@customworkforcesolutions.com" class="footer-email">
-        recruiting@customworkforcesolutions.com
+      <a href="mailto:AiRecruiter@customworkforcesolutionsllc.com" class="footer-email">
+        AiRecruiter@customworkforcesolutionsllc.com
       </a>
       <p class="footer-powered">
         Powered by Fabien P / AI Resume Screening Technology
@@ -164,6 +213,43 @@
   </footer>
 
   <script>
+    // Check authentication on page load
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/auth/status');
+        const data = await response.json();
+
+        if (data.authenticated) {
+          document.getElementById('userName').textContent = data.user.name;
+
+          // Show jobs and audit trail links only for admin users
+          if (data.user.role === 'admin') {
+            document.getElementById('jobsLink').style.display = 'inline-block';
+            document.getElementById('auditLink').style.display = 'inline-block';
+          }
+        } else {
+          window.location.href = '/login.html';
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        window.location.href = '/login.html';
+      }
+    }
+
+    // Logout function
+    async function logout() {
+      try {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/login.html';
+      } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = '/login.html';
+      }
+    }
+
+    // Check auth on page load
+    checkAuth();
+
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const uploadStatus = document.getElementById('uploadStatus');

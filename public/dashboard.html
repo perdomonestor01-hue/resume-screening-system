@@ -13,14 +13,24 @@
 <body>
   <nav class="navbar">
     <div class="container">
-      <div class="nav-brand">
-        <h1>Custom Workforce Solutions</h1>
-        <p class="tagline">Your Trusted Partner for Light Industrial Staffing Solutions!</p>
+      <!-- Top Row: Brand + User Info -->
+      <div>
+        <div class="nav-brand">
+          <h1>Custom Workforce Solutions</h1>
+          <p class="tagline">Find Your Job Match</p>
+        </div>
+        <div class="user-info-section">
+          <span id="userName" class="user-name-display"></span>
+          <button onclick="logout()" class="logout-button">Logout</button>
+        </div>
       </div>
+
+      <!-- Bottom Row: Navigation Links -->
       <div class="nav-links">
         <a href="/">Upload</a>
         <a href="/dashboard.html" class="active">Dashboard</a>
-        <a href="/manage-jobs.html">Jobs</a>
+        <a href="/manage-jobs.html" id="jobsLink" style="display: none;">Jobs</a>
+        <a href="/audit.html" id="auditLink" style="display: none;">🔍 Audit Trail</a>
       </div>
     </div>
   </nav>
@@ -72,10 +82,10 @@
     <div class="footer-content">
       <div class="footer-branding">
         <h3>Custom Workforce Solutions</h3>
-        <p>Your Trusted Partner for Light Industrial Staffing Solutions</p>
+        <p>Find Your Job Match</p>
       </div>
-      <a href="mailto:recruiting@customworkforcesolutions.com" class="footer-email">
-        recruiting@customworkforcesolutions.com
+      <a href="mailto:AiRecruiter@customworkforcesolutionsllc.com" class="footer-email">
+        AiRecruiter@customworkforcesolutionsllc.com
       </a>
       <p class="footer-powered">
         Powered by Fabien P / AI Resume Screening Technology
@@ -85,6 +95,40 @@
 
   <script>
     let allCandidates = [];
+
+    // Check authentication on page load
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/auth/status');
+        const data = await response.json();
+
+        if (data.authenticated) {
+          document.getElementById('userName').textContent = data.user.name;
+
+          // Show jobs and audit trail links only for admin users
+          if (data.user.role === 'admin') {
+            document.getElementById('jobsLink').style.display = 'inline-block';
+            document.getElementById('auditLink').style.display = 'inline-block';
+          }
+        } else {
+          window.location.href = '/login.html';
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        window.location.href = '/login.html';
+      }
+    }
+
+    // Logout function
+    async function logout() {
+      try {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/login.html';
+      } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = '/login.html';
+      }
+    }
 
     // Load dashboard data
     async function loadDashboard() {
@@ -173,11 +217,6 @@
           </div>
 
           <div class="modal-section">
-            <h3>Resume Text Preview</h3>
-            <div class="resume-preview">${candidate.resume_text?.substring(0, 500) || 'No text available'}...</div>
-          </div>
-
-          <div class="modal-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
               <h3 style="margin: 0;">Job Comparisons</h3>
               <span style="color: #6b7280; font-size: 13px;">📊 Sorted by Match % (Highest First)</span>
@@ -198,6 +237,20 @@
                       ${comp.match_score}% Match
                     </div>
                   </div>
+
+                  ${comp.distance_miles ? `
+                    <div style="background: #f3f4f6; border-left: 4px solid #3b82f6; padding: 12px; margin: 12px 0; border-radius: 4px;">
+                      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <span style="font-size: 18px;">🚗</span>
+                        <strong style="color: #1e40af;">Distance to Workplace:</strong>
+                        <span style="color: #1f2937; font-weight: 600;">${comp.distance_miles} miles</span>
+                        <span style="color: #6b7280;">(~${Math.round(comp.distance_miles * 1.5)} min drive)</span>
+                      </div>
+                      <p style="margin: 4px 0 0 26px; color: #4b5563; font-size: 13px;">
+                        ${comp.commute_description || 'Commute time estimate based on distance'}
+                      </p>
+                    </div>
+                  ` : ''}
 
                   <div class="comparison-details">
                     <div class="detail-block">
@@ -221,6 +274,17 @@
                         <p>${comp.detailed_analysis}</p>
                       </div>
                     ` : ''}
+                  </div>
+
+                  <!-- Interview Questions Section -->
+                  <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #e5e7eb;">
+                    <button onclick="generateQuestions(${candidate.id}, ${comp.job_id}, '${comp.job_title}')"
+                            class="btn btn-secondary"
+                            id="genBtn-${candidate.id}-${comp.job_id}"
+                            style="width: 100%; padding: 12px; font-weight: 600;">
+                      📝 Generate Interview Questions
+                    </button>
+                    <div id="questions-${candidate.id}-${comp.job_id}" style="margin-top: 15px;"></div>
                   </div>
                 </div>
               `).join('')
@@ -297,7 +361,162 @@
     };
 
     // Load on page load
+    checkAuth();
     loadDashboard();
+
+    // ========== Interview Question Generation ==========
+
+    async function generateQuestions(candidateId, jobId, jobTitle) {
+      const btnId = `genBtn-${candidateId}-${jobId}`;
+      const containerId = `questions-${candidateId}-${jobId}`;
+      const btn = document.getElementById(btnId);
+      const container = document.getElementById(containerId);
+
+      // Show loading state
+      btn.disabled = true;
+      btn.innerHTML = '🤖 Generating questions...';
+      container.innerHTML = '<p style="text-align: center; color: #6b7280;">⏳ AI is generating interview questions (this takes ~3-5 seconds)...</p>';
+
+      try {
+        const response = await fetch(`/api/candidates/${candidateId}/generate-questions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ job_id: jobId })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to generate questions');
+        }
+
+        // Display questions
+        displayQuestions(data.questions, container, jobTitle, data.cached);
+
+        // Update button
+        btn.innerHTML = '✅ Questions Generated';
+        btn.style.background = '#10b981';
+
+      } catch (error) {
+        console.error('Error generating questions:', error);
+        container.innerHTML = `<p style="color: #ef4444;">❌ Error: ${error.message}</p>`;
+        btn.disabled = false;
+        btn.innerHTML = '📝 Generate Interview Questions';
+      }
+    }
+
+    function displayQuestions(questions, container, jobTitle, isCached) {
+      // Group questions by type
+      const byType = {
+        technical: [],
+        behavioral: [],
+        situational: []
+      };
+
+      questions.forEach((q, index) => {
+        q.number = index + 1;
+        byType[q.type]?.push(q) || byType.technical.push(q);
+      });
+
+      const typeIcons = {
+        technical: '🔧',
+        behavioral: '🎯',
+        situational: '💡'
+      };
+
+      const typeLabels = {
+        technical: 'Technical Questions',
+        behavioral: 'Behavioral Questions',
+        situational: 'Situational Questions'
+      };
+
+      let html = `
+        <div style="background: #f9fafb; border: 2px solid #d1d5db; border-radius: 8px; padding: 20px; margin-top: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h4 style="margin: 0; color: #1f2937;">📝 Interview Questions for ${jobTitle}</h4>
+            <button onclick="copyAllQuestions(${JSON.stringify(questions).replace(/"/g, '&quot;')})"
+                    class="btn btn-secondary"
+                    style="padding: 6px 12px; font-size: 13px;">
+              📋 Copy All
+            </button>
+          </div>
+          ${isCached ? '<p style="color: #6b7280; font-size: 13px; margin-bottom: 10px;">✓ Previously generated questions (cached)</p>' : ''}
+      `;
+
+      // Display questions by type
+      Object.entries(byType).forEach(([type, typeQuestions]) => {
+        if (typeQuestions.length > 0) {
+          html += `
+            <div style="margin-bottom: 20px;">
+              <h5 style="color: #4b5563; margin-bottom: 10px;">
+                ${typeIcons[type]} ${typeLabels[type]} (${typeQuestions.length})
+              </h5>
+          `;
+
+          typeQuestions.forEach(q => {
+            html += `
+              <div style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid #667eea;">
+                <p style="font-weight: 600; color: #1f2937; margin-bottom: 8px;">
+                  Q${q.number}. ${q.question}
+                </p>
+                <p style="font-size: 13px; color: #6b7280; margin: 5px 0; font-style: italic;">
+                  💭 Purpose: ${q.purpose}
+                </p>
+                ${q.followUp ? `
+                  <p style="font-size: 13px; color: #3b82f6; margin: 5px 0;">
+                    🔍 Follow-up: ${q.followUp}
+                  </p>
+                ` : ''}
+              </div>
+            `;
+          });
+
+          html += '</div>';
+        }
+      });
+
+      html += `
+          <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e7eb; text-align: center;">
+            <p style="color: #6b7280; font-size: 12px;">
+              💡 Tip: These questions are AI-generated based on the candidate's resume and job requirements.
+              Customize as needed for your specific interview process.
+            </p>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function copyAllQuestions(questions) {
+      let text = `Interview Questions\n${'='.repeat(50)}\n\n`;
+
+      questions.forEach((q, index) => {
+        text += `Q${index + 1}. ${q.question}\n`;
+        text += `   Type: ${q.type.charAt(0).toUpperCase() + q.type.slice(1)}\n`;
+        text += `   Purpose: ${q.purpose}\n`;
+        if (q.followUp) {
+          text += `   Follow-up: ${q.followUp}\n`;
+        }
+        text += `\n`;
+      });
+
+      // Copy to clipboard
+      navigator.clipboard.writeText(text).then(() => {
+        // Show temporary success message
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '✅ Copied!';
+        btn.style.background = '#10b981';
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.style.background = '';
+        }, 2000);
+      }).catch(err => {
+        alert('Failed to copy to clipboard');
+        console.error('Copy error:', err);
+      });
+    }
   </script>
 </body>
 </html>

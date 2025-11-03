@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="description" content="Apply for manufacturing and warehouse positions with Custom Workforce Solutions">
+  <meta name="theme-color" content="#667eea">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Apply Now - Custom Workforce Solutions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Mobile-First Responsive Enhancements */
+    body {
+      font-size: 16px; /* Prevents zoom on iOS */
+      -webkit-text-size-adjust: 100%;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Enhanced touch targets for mobile - Apple HIG 44px minimum */
+    @media (max-width: 768px) {
+      .btn, button, input[type="file"] {
+        min-height: 50px;
+        min-width: 50px;
+        font-size: 16px;
+        padding: 16px 24px;
+        -webkit-tap-highlight-color: rgba(103, 126, 234, 0.2);
+      }
+
+      .drop-zone {
+        min-height: 280px;
+        padding: 40px 24px;
+        margin: 20px 0;
+      }
+
+      .hero-section {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .hero-image {
+        width: 100%;
+      }
+
+      .stats-bar {
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      .container {
+        padding: 15px;
+      }
+
+      /* Improved mobile typography */
+      .public-header h1 {
+        font-size: 24px;
+        line-height: 1.3;
+        padding: 0 10px;
+      }
+
+      .public-header p {
+        font-size: 15px;
+        padding: 0 10px;
+      }
+
+      .public-header {
+        padding: 24px 16px;
+      }
+
+      /* Mobile language toggle positioning */
+      .language-toggle {
+        top: 16px;
+        right: 16px;
+      }
+
+      .lang-btn {
+        min-height: 48px;
+        min-width: 70px;
+        padding: 10px 16px;
+        font-size: 14px;
+      }
+
+      .lang-text {
+        font-size: 13px;
+        letter-spacing: 0.8px;
+      }
+
+      .upload-header h2 {
+        font-size: 22px;
+        line-height: 1.3;
+      }
+
+      .upload-header p {
+        font-size: 15px;
+      }
+
+      /* Better file requirements on mobile */
+      .file-requirements {
+        padding: 14px 16px;
+        margin: 16px 0;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      /* Improved AI processing on mobile */
+      .ai-processing-container {
+        padding: 24px 16px;
+        min-height: 400px;
+      }
+
+      .ai-processing-content {
+        padding: 28px 20px;
+      }
+
+      .ai-avatar {
+        width: 64px;
+        height: 64px;
+      }
+
+      .ai-avatar-circle,
+      .ai-status-pulse {
+        width: 64px;
+        height: 64px;
+      }
+
+      .ai-icon {
+        font-size: 32px;
+      }
+
+      .ai-header h3 {
+        font-size: 20px;
+        margin-bottom: 8px;
+      }
+
+      .ai-status-badge {
+        font-size: 11px;
+        padding: 5px 14px;
+      }
+
+      .ai-thinking-box {
+        padding: 16px;
+        margin-bottom: 20px;
+      }
+
+      .ai-message {
+        font-size: 15px;
+      }
+
+      .ai-step {
+        padding: 12px 14px;
+        font-size: 14px;
+      }
+
+      .step-icon {
+        font-size: 20px;
+        margin-right: 12px;
+      }
+
+      .step-text {
+        font-size: 14px;
+      }
+
+      /* Results section mobile */
+      .results-section h3 {
+        font-size: 22px;
+        margin-bottom: 20px;
+      }
+
+      .match-card {
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+
+      .match-header h5 {
+        font-size: 18px;
+      }
+
+      .score-badge {
+        font-size: 13px;
+        padding: 8px 16px;
+        min-width: auto;
+      }
+
+      /* Footer mobile improvements */
+      .site-footer {
+        padding: 24px 16px;
+      }
+
+      .footer-branding h3 {
+        font-size: 18px;
+      }
+
+      .footer-branding p {
+        font-size: 14px;
+      }
+
+      .footer-powered {
+        font-size: 13px;
+        margin-top: 16px;
+      }
+    }
+
+    /* Extra small devices - phones in portrait */
+    @media (max-width: 480px) {
+      .public-header h1 {
+        font-size: 20px;
+        padding-right: 85px; /* Prevent overlap with language button */
+      }
+
+      .public-header p {
+        font-size: 14px;
+      }
+
+      /* Smaller language toggle on small screens */
+      .language-toggle {
+        top: 12px;
+        right: 12px;
+      }
+
+      .lang-btn {
+        min-height: 44px;
+        min-width: 65px;
+        padding: 8px 14px;
+      }
+
+      .lang-text {
+        font-size: 12px;
+        letter-spacing: 0.7px;
+      }
+
+      .upload-header h2 {
+        font-size: 20px;
+      }
+
+      .drop-zone {
+        min-height: 240px;
+        padding: 32px 16px;
+      }
+
+      .drop-zone-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+      }
+
+      .drop-zone-text p {
+        font-size: 15px;
+      }
+
+      .btn {
+        padding: 14px 20px;
+        font-size: 15px;
+      }
+
+      .file-requirements {
+        padding: 12px 14px;
+        margin: 14px 0;
+        font-size: 13px;
+        line-height: 1.65;
+      }
+
+      .container.simple-upload {
+        padding: 0 12px;
+      }
+
+      .info-card {
+        padding: 16px;
+      }
+
+      .info-card h3 {
+        font-size: 18px;
+      }
+
+      .info-card li {
+        font-size: 14px;
+      }
+    }
+
+    /* Landscape orientation on mobile */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .public-header {
+        padding: 16px;
+      }
+
+      .public-header h1 {
+        font-size: 20px;
+        margin-bottom: 6px;
+      }
+
+      .public-header p {
+        font-size: 13px;
+      }
+
+      .drop-zone {
+        min-height: 180px;
+        padding: 24px 16px;
+      }
+
+      .ai-processing-container {
+        min-height: auto;
+        padding: 16px;
+      }
+    }
+
+    /* High-contrast mode support */
+    @media (prefers-contrast: high) {
+      .public-header {
+        border-bottom: 3px solid white;
+      }
+
+      .file-requirements {
+        border: 2px solid #f59e0b;
+      }
+
+      .btn {
+        border: 2px solid currentColor;
+      }
+    }
+
+    /* Reduced motion support for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Simplified public form styling */
+    .public-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    /* Language Toggle Button */
+    .language-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+    }
+
+    .lang-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      padding: 10px 18px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 700;
+      color: #667eea;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      min-height: 44px;
+      min-width: 70px;
+    }
+
+    .lang-btn:hover {
+      background: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border-color: white;
+    }
+
+    .lang-btn:active {
+      transform: translateY(0);
+    }
+
+    .lang-text {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* Better touch feedback on mobile */
+    @media (hover: none) and (pointer: coarse) {
+      .btn:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+      }
+
+      .drop-zone:active {
+        transform: scale(0.995);
+      }
+
+      button:active, a:active {
+        opacity: 0.8;
+      }
+    }
+
+    .public-header h1 {
+      margin: 0 0 10px 0;
+      font-size: 28px;
+    }
+
+    .public-header p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 16px;
+    }
+
+    .simple-upload {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .file-requirements {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 15px 18px;
+      margin: 20px 0;
+      border-radius: 4px;
+      color: #78350f;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .file-requirements strong {
+      color: #92400e;
+    }
+  </style>
+</head>
+<body>
+  <!-- Public Application Header -->
+  <div class="public-header">
+    <div class="language-toggle">
+      <button id="langToggle" class="lang-btn" aria-label="Switch to Spanish / Cambiar a Español">
+        <span class="lang-text">ESP</span>
+      </button>
+    </div>
+    <h1 data-en="🏭 Apply for Manufacturing & Warehouse Jobs" data-es="🏭 Solicitar Empleos en Manufactura y Almacén">🏭 Apply for Manufacturing & Warehouse Jobs</h1>
+    <p data-en="Upload your resume and get matched with opportunities in the DFW area" data-es="Sube tu currículum y obtén oportunidades en el área de DFW">Upload your resume and get matched with opportunities in the DFW area</p>
+  </div>
+
+  <main class="container simple-upload">
+    <!-- File Requirements Notice -->
+    <div class="file-requirements">
+      <strong>📄 <span data-en="Accepted formats:" data-es="Formatos aceptados:">Accepted formats:</span></strong> <span data-en="PDF, Word (.doc/.docx), or Text files only." data-es="Solo archivos PDF, Word (.doc/.docx) o Texto.">PDF, Word (.doc/.docx), or Text files only.</span> <strong style="color: #b91c1c;"><span data-en="Image files (JPG, PNG) are NOT supported." data-es="NO se aceptan archivos de imagen (JPG, PNG).">Image files (JPG, PNG) are NOT supported.</span></strong>
+    </div>
+
+    <!-- Upload Section -->
+    <div class="upload-section">
+      <div class="upload-header">
+        <h2 data-en="Upload Your Resume" data-es="Sube Tu Currículum">Upload Your Resume</h2>
+        <p data-en="We'll analyze your qualifications and match you with the best positions" data-es="Analizaremos tus calificaciones y te emparejaremos con las mejores posiciones">We'll analyze your qualifications and match you with the best positions</p>
+      </div>
+
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()" style="cursor: pointer;" role="button" tabindex="0" aria-label="Upload resume - click or tap to select file">
+        <div class="drop-zone-icon" aria-hidden="true">📄</div>
+        <div class="drop-zone-text">
+          <p><strong data-en="Tap to select your resume" data-es="Toca para seleccionar tu currículum">Tap to select your resume</strong></p>
+          <p style="margin: 10px 0; color: #9ca3af; font-size: 14px;" data-en="or drag and drop here" data-es="o arrastra y suelta aquí">or drag and drop here</p>
+          <button type="button" class="btn btn-primary" onclick="event.stopPropagation(); document.getElementById('fileInput').click()" aria-label="Choose resume file">
+            <span data-en="Choose File" data-es="Elegir Archivo">Choose File</span>
+          </button>
+        </div>
+        <input type="file"
+               id="fileInput"
+               accept=".pdf,.docx,.doc,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+               style="display: none;"
+               aria-label="Resume file input">
+      </div>
+
+      <div id="uploadStatus" class="upload-status" style="display: none;"></div>
+
+      <!-- AI Processing Interface -->
+      <div id="loadingBar" class="ai-processing-container" style="display: none;">
+        <div class="ai-processing-content">
+          <div class="ai-avatar">
+            <div class="ai-avatar-circle">
+              <span class="ai-icon">🤖</span>
+            </div>
+            <div class="ai-status-pulse"></div>
+          </div>
+
+          <div class="ai-header">
+            <h3 data-en="AI Recruiter" data-es="Reclutador IA">AI Recruiter</h3>
+            <span class="ai-status-badge" data-en="Processing" data-es="Procesando">Processing</span>
+          </div>
+
+          <div class="ai-thinking-box">
+            <div class="thinking-indicator">
+              <span class="thinking-dot"></span>
+              <span class="thinking-dot"></span>
+              <span class="thinking-dot"></span>
+            </div>
+            <p id="aiThinkingMessage" class="ai-message" data-en="Analyzing your resume..." data-es="Analizando tu currículum...">Analyzing your resume...</p>
+          </div>
+
+          <div class="ai-steps-container">
+            <div class="ai-step" id="step1">
+              <div class="step-icon">📄</div>
+              <span class="step-text" data-en="Reading resume" data-es="Leyendo currículum">Reading resume</span>
+              <div class="step-status">⏳</div>
+            </div>
+            <div class="ai-step" id="step2">
+              <div class="step-icon">🔍</div>
+              <span class="step-text" data-en="Extracting info" data-es="Extrayendo información">Extracting info</span>
+              <div class="step-status">⏳</div>
+            </div>
+            <div class="ai-step" id="step3">
+              <div class="step-icon">🧠</div>
+              <span class="step-text" data-en="Analyzing experience" data-es="Analizando experiencia">Analyzing experience</span>
+              <div class="step-status">⏳</div>
+            </div>
+            <div class="ai-step" id="step4">
+              <div class="step-icon">🎯</div>
+              <span class="step-text" data-en="Matching jobs" data-es="Emparejando empleos">Matching jobs</span>
+              <div class="step-status">⏳</div>
+            </div>
+          </div>
+
+          <div class="progress-bar-subtle">
+            <div class="progress-fill-subtle" id="progressFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <div id="resultsSection" class="results-section" style="display: none;">
+        <h3 data-en="✅ Thank You for Applying!" data-es="✅ ¡Gracias por Aplicar!">✅ Thank You for Applying!</h3>
+        <div id="candidateInfo" class="info-card"></div>
+        <div id="matchResults" class="match-results"></div>
+        <div class="action-buttons">
+          <button class="btn btn-primary" onclick="location.reload()">
+            <span data-en="Submit Another Resume" data-es="Enviar Otro Currículum">Submit Another Resume</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="info-section">
+      <div class="info-card">
+        <h3 data-en="How It Works" data-es="Cómo Funciona">How It Works</h3>
+        <ol>
+          <li><strong data-en="Upload Resume:" data-es="Subir Currículum:">Upload Resume:</strong> <span data-en="Select your PDF or Word document" data-es="Selecciona tu documento PDF o Word">Select your PDF or Word document</span></li>
+          <li><strong data-en="AI Analysis:" data-es="Análisis IA:">AI Analysis:</strong> <span data-en="Our system analyzes your qualifications" data-es="Nuestro sistema analiza tus calificaciones">Our system analyzes your qualifications</span></li>
+          <li><strong data-en="Get Matched:" data-es="Ser Emparejado:">Get Matched:</strong> <span data-en="We'll contact you about positions that match your skills" data-es="Te contactaremos sobre posiciones que coincidan con tus habilidades">We'll contact you about positions that match your skills</span></li>
+        </ol>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-branding">
+        <h3>Custom Workforce Solutions</h3>
+        <p data-en="Find Your Job Match" data-es="Encuentra Tu Trabajo Ideal">Find Your Job Match</p>
+      </div>
+      <p class="footer-powered" data-en="Powered by AI Resume Screening Technology" data-es="Impulsado por Tecnología de Selección de Currículums con IA">
+        Powered by AI Resume Screening Technology
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const resultsSection = document.getElementById('resultsSection');
+
+    // ============================================
+    // LANGUAGE TOGGLE FUNCTIONALITY
+    // ============================================
+    let currentLang = localStorage.getItem('preferredLanguage') || 'en';
+
+    // Translation messages for dynamic content
+    const translations = {
+      en: {
+        analyzing: 'Analyzing your resume...',
+        reading: 'Reading your resume...',
+        extracting: 'Extracting your information...',
+        analyzingExp: 'Analyzing your experience...',
+        matching: 'Matching with jobs...',
+        complete: 'Complete!',
+        applicationReceived: '🎉 Application Received!',
+        thankYou: 'Thank you',
+        weReceived: "We've received your resume and analyzed it against our current openings.",
+        recruiterContact: 'A recruiter will contact you at',
+        ifMatch: 'if you match our current positions.',
+        topMatches: 'Your Top Matches:',
+        match: 'Match',
+        weWillContact: "💼 We'll be in touch soon about these opportunities!",
+        reviewAndContact: "We'll review your application and contact you about suitable positions.",
+        invalidFileType: '❌ Invalid file type. Only PDF, Word (.doc/.docx), and Text files are accepted. Image files are NOT supported.',
+        fileTooBig: 'File size must be less than 10MB'
+      },
+      es: {
+        analyzing: 'Analizando tu currículum...',
+        reading: 'Leyendo tu currículum...',
+        extracting: 'Extrayendo tu información...',
+        analyzingExp: 'Analizando tu experiencia...',
+        matching: 'Emparejando con empleos...',
+        complete: '¡Completo!',
+        applicationReceived: '🎉 ¡Solicitud Recibida!',
+        thankYou: 'Gracias',
+        weReceived: "Hemos recibido tu currículum y lo analizamos contra nuestras posiciones actuales.",
+        recruiterContact: 'Un reclutador te contactará a',
+        ifMatch: 'si coincides con nuestras posiciones actuales.',
+        topMatches: 'Tus Mejores Coincidencias:',
+        match: 'Coincidencia',
+        weWillContact: "💼 ¡Nos pondremos en contacto pronto sobre estas oportunidades!",
+        reviewAndContact: "Revisaremos tu solicitud y te contactaremos sobre posiciones adecuadas.",
+        invalidFileType: '❌ Tipo de archivo inválido. Solo se aceptan archivos PDF, Word (.doc/.docx) y Texto. NO se aceptan archivos de imagen.',
+        fileTooBig: 'El tamaño del archivo debe ser menor a 10MB'
+      }
+    };
+
+    function switchLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('preferredLanguage', lang);
+
+      // Update all elements with data-en and data-es attributes
+      document.querySelectorAll('[data-en][data-es]').forEach(element => {
+        element.textContent = element.getAttribute(`data-${lang}`);
+      });
+
+      // Update language toggle button - shows opposite language (what it will switch TO)
+      const langBtn = document.getElementById('langToggle');
+      const text = langBtn.querySelector('.lang-text');
+
+      if (lang === 'en') {
+        // Currently English, button shows ESP (click to switch to Spanish)
+        text.textContent = 'ESP';
+        langBtn.setAttribute('aria-label', 'Switch to Spanish / Cambiar a Español');
+      } else {
+        // Currently Spanish, button shows ENG (click to switch to English)
+        text.textContent = 'ENG';
+        langBtn.setAttribute('aria-label', 'Switch to English / Cambiar a Inglés');
+      }
+    }
+
+    // Initialize language on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      switchLanguage(currentLang);
+
+      // Language toggle button click handler
+      document.getElementById('langToggle').addEventListener('click', () => {
+        const newLang = currentLang === 'en' ? 'es' : 'en';
+        switchLanguage(newLang);
+      });
+    });
+
+    // Keyboard accessibility for drop zone
+    dropZone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        fileInput.click();
+      }
+    });
+
+    // Drag and drop handlers
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFile(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    // Prevent zoom on double-tap for iOS (better mobile UX)
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+
+    async function handleFile(file) {
+      // Validate file - ONLY PDF, DOC, DOCX, TXT allowed
+      const allowedTypes = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/msword',
+        'text/plain'
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        showError(translations[currentLang].invalidFileType);
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        showError(translations[currentLang].fileTooBig);
+        return;
+      }
+
+      // Hide previous results
+      uploadStatus.style.display = 'none';
+      resultsSection.style.display = 'none';
+
+      // Show loading
+      showLoadingBar();
+
+      // Upload file
+      const formData = new FormData();
+      formData.append('resume', file);
+
+      try {
+        await new Promise(resolve => setTimeout(resolve, 600));
+        updateLoadingProgress(25);
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 800));
+        updateLoadingProgress(50);
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Upload failed');
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        updateLoadingProgress(100);
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        hideLoadingBar();
+        showResults(data);
+      } catch (error) {
+        hideLoadingBar();
+        showError('Error: ' + error.message);
+      }
+    }
+
+    function showLoadingBar() {
+      document.getElementById('loadingBar').style.display = 'flex';
+      updateLoadingProgress(0);
+    }
+
+    function hideLoadingBar() {
+      document.getElementById('loadingBar').style.display = 'none';
+    }
+
+    function updateLoadingProgress(percent) {
+      const progressFill = document.getElementById('progressFill');
+      progressFill.style.width = percent + '%';
+
+      // Update step status with translated messages
+      const steps = [
+        { percent: 0, step: 1, message: translations[currentLang].reading },
+        { percent: 25, step: 2, message: translations[currentLang].extracting },
+        { percent: 50, step: 3, message: translations[currentLang].analyzingExp },
+        { percent: 75, step: 4, message: translations[currentLang].matching },
+        { percent: 100, step: 4, message: translations[currentLang].complete }
+      ];
+
+      for (let i = 0; i < steps.length; i++) {
+        if (steps[i].percent <= percent) {
+          document.getElementById('aiThinkingMessage').textContent = steps[i].message;
+          updateStepStatus(steps[i].step);
+        }
+      }
+    }
+
+    function updateStepStatus(activeStep) {
+      for (let i = 1; i <= 4; i++) {
+        const stepEl = document.getElementById(`step${i}`);
+        const statusEl = stepEl?.querySelector('.step-status');
+
+        if (i < activeStep) {
+          stepEl.classList.add('completed');
+          statusEl.textContent = '✅';
+        } else if (i === activeStep) {
+          stepEl.classList.add('active');
+          statusEl.textContent = '⏳';
+        } else {
+          stepEl.classList.remove('active', 'completed');
+          statusEl.textContent = '⏳';
+        }
+      }
+    }
+
+    function showStatus(message, type = 'info') {
+      uploadStatus.style.display = 'block';
+      uploadStatus.className = `upload-status ${type}`;
+      uploadStatus.innerHTML = message;
+    }
+
+    function showError(message) {
+      showStatus(message, 'error');
+    }
+
+    function showResults(data) {
+      uploadStatus.style.display = 'none';
+      resultsSection.style.display = 'block';
+
+      // Show success message
+      const candidateInfo = document.getElementById('candidateInfo');
+      candidateInfo.innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+          <h3 style="color: #10b981; margin-bottom: 15px;">${translations[currentLang].applicationReceived}</h3>
+          <p style="font-size: 18px; margin-bottom: 10px;"><strong>${data.candidate.name || translations[currentLang].thankYou}</strong></p>
+          <p style="color: #6b7280;">${translations[currentLang].weReceived}</p>
+          <p style="color: #6b7280; margin-top: 15px;">${translations[currentLang].recruiterContact} <strong>${data.candidate.email || 'your email'}</strong> ${translations[currentLang].ifMatch}</p>
+        </div>
+      `;
+
+      // Show top matches (simplified for public view - no detailed analysis)
+      const matchResults = document.getElementById('matchResults');
+      if (data.comparisons && data.comparisons.length > 0) {
+        const topMatches = data.comparisons.slice(0, 3); // Show top 3 matches only
+        matchResults.innerHTML = `
+          <h4 style="text-align: center; margin: 20px 0;">${translations[currentLang].topMatches}</h4>
+          ${topMatches.map(comp => `
+            <div class="match-card" style="text-align: center;">
+              <div class="match-header">
+                <h5 style="margin-bottom: 10px;">${comp.job_title}</h5>
+                <div class="score-badge score-${getScoreLevel(comp.match_score)}" style="margin: 0 auto;">
+                  ${comp.match_score}% ${translations[currentLang].match}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+          <p style="text-align: center; color: #6b7280; margin-top: 20px; font-size: 14px;">
+            ${translations[currentLang].weWillContact}
+          </p>
+        `;
+      } else {
+        matchResults.innerHTML = `
+          <p style="text-align: center; color: #6b7280;">
+            ${translations[currentLang].reviewAndContact}
+          </p>
+        `;
+      }
+    }
+
+    function getScoreLevel(score) {
+      if (score >= 90) return 'excellent';
+      if (score >= 75) return 'strong';
+      if (score >= 60) return 'good';
+      if (score >= 40) return 'moderate';
+      return 'poor';
+    }
+  </script>
+</body>
+</html>

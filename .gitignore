@@ -12,3 +12,5 @@ uploads/*.jpeg
 uploads/*.png
 !uploads/.gitkeep
 resume_screening.db
+database.db
+*.db

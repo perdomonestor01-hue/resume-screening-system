@@ -22,9 +22,9 @@ class AIComparison {
       const prompt = this.buildComparisonPrompt(resumeText, job);
 
       const message = await this.client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 2048,
-        temperature: 0.3,
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 4096,
+        temperature: 0.2,
         messages: [{
           role: 'user',
           content: prompt
