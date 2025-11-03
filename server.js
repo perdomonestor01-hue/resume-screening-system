@@ -21,8 +21,18 @@ const questionGenerator = require('./services/interviewQuestionGenerator');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Database
-const db = new sqlite3.Database('./database.db');
+// Database - use persistent volume in production
+const dbPath = process.env.NODE_ENV === 'production' ? '/app/data/database.db' : './database.db';
+
+// Ensure data directory exists in production
+if (process.env.NODE_ENV === 'production') {
+  const dataDir = '/app/data';
+  if (!require('fs').existsSync(dataDir)) {
+    require('fs').mkdirSync(dataDir, { recursive: true });
+  }
+}
+
+const db = new sqlite3.Database(dbPath);
 
 // Session configuration
 app.use(session({
