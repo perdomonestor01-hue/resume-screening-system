@@ -97,6 +97,91 @@ app.get('/api/health', (req, res) => {
 });
 
 /**
+ * One-time admin setup endpoint
+ * Use: GET /api/setup-admins?secret=cws2025setup
+ * Only works if no admin accounts exist
+ */
+app.get('/api/setup-admins', async (req, res) => {
+  try {
+    // Security: Require secret key
+    if (req.query.secret !== 'cws2025setup') {
+      return res.status(403).json({ error: 'Invalid setup secret' });
+    }
+
+    // Check if admin accounts already exist
+    db.get(`SELECT COUNT(*) as count FROM users WHERE role = 'admin'`, async (err, result) => {
+      if (err) {
+        console.error('Setup error:', err);
+        return res.status(500).json({ error: 'Database error', details: err.message });
+      }
+
+      if (result.count > 0) {
+        return res.json({
+          status: 'skipped',
+          message: 'Admin accounts already exist',
+          adminCount: result.count
+        });
+      }
+
+      // Create the three admin accounts
+      const admins = [
+        {
+          name: 'Admin User',
+          email: 'admin@customworkforcesolutionsllc.com',
+          password: 'admin123'
+        },
+        {
+          name: 'Lorie Cavil',
+          email: 'lcavil@customworkforcesolutionsllc.com',
+          password: 'LorieCWS2025!'
+        },
+        {
+          name: 'A. Cavil',
+          email: 'acavil@customworkforcesolutionsllc.com',
+          password: 'AcavilCWS2025!'
+        }
+      ];
+
+      const created = [];
+      let completed = 0;
+
+      for (const admin of admins) {
+        const hash = await bcrypt.hash(admin.password, 10);
+
+        db.run(`
+          INSERT INTO users (name, email, password_hash, role)
+          VALUES (?, ?, ?, 'admin')
+        `, [admin.name, admin.email, hash], function(err) {
+          completed++;
+
+          if (err) {
+            console.error(`Failed to create ${admin.name}:`, err);
+          } else {
+            created.push({
+              name: admin.name,
+              email: admin.email
+            });
+          }
+
+          // Send response when all are processed
+          if (completed === admins.length) {
+            res.json({
+              status: 'success',
+              message: 'Admin accounts created',
+              created: created,
+              loginUrl: '/login.html'
+            });
+          }
+        });
+      }
+    });
+  } catch (error) {
+    console.error('Setup error:', error);
+    res.status(500).json({ error: 'Setup failed', details: error.message });
+  }
+});
+
+/**
  * Login route
  */
 app.post('/api/login', async (req, res) => {
