@@ -70,6 +70,9 @@ let emailMonitor;
 
 async function initializeServices() {
   try {
+    // Initialize database tables
+    await initializeDatabaseTables();
+
     // Initialize email notifier
     await notifier.init();
 
@@ -81,6 +84,38 @@ async function initializeServices() {
   } catch (error) {
     console.error('Error initializing services:', error);
   }
+}
+
+// Initialize database tables on startup
+function initializeDatabaseTables() {
+  return new Promise((resolve, reject) => {
+    // Create audit_logs table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS audit_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        user_email TEXT,
+        action_type TEXT NOT NULL,
+        resource_type TEXT NOT NULL,
+        resource_id INTEGER,
+        details TEXT,
+        before_value TEXT,
+        after_value TEXT,
+        ip_address TEXT,
+        user_agent TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      )
+    `, (err) => {
+      if (err) {
+        console.error('Error creating audit_logs table:', err);
+        reject(err);
+      } else {
+        console.log('✓ Database tables initialized');
+        resolve();
+      }
+    });
+  });
 }
 
 // ========== API ROUTES ==========
