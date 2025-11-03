@@ -18,7 +18,7 @@ railway login
 railway init
 
 # 3. Set environment variables
-railway variables set ANTHROPIC_API_KEY="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"
+railway variables set ANTHROPIC_API_KEY="your-anthropic-api-key-here"
 railway variables set NODE_ENV="production"
 
 # 4. Deploy
@@ -34,7 +34,7 @@ railway domain
 2. Click "Deploy from GitHub repo"
 3. Connect your GitHub account and select this repository
 4. Configure environment variables in Railway dashboard:
-   - `ANTHROPIC_API_KEY`: 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
+   - `ANTHROPIC_API_KEY`: your-anthropic-api-key-here
    - `NODE_ENV`: production
 5. Railway will automatically detect Node.js and deploy
 

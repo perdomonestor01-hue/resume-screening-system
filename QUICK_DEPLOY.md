@@ -27,7 +27,7 @@ Or manually:
 railway init
 
 # Set environment variables
-railway variables set ANTHROPIC_API_KEY="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"
+railway variables set ANTHROPIC_API_KEY="your-anthropic-api-key-here"
 railway variables set NODE_ENV="production"
 
 # Deploy
@@ -55,7 +55,7 @@ This will give you a URL like: `https://your-app.railway.app`
 4. Select or create a new GitHub repository for this code
 5. Railway will auto-detect the Node.js app and deploy it
 6. Add environment variables in Railway dashboard:
-   - ANTHROPIC_API_KEY: `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`
+   - ANTHROPIC_API_KEY: `your-anthropic-api-key-here`
    - NODE_ENV: `production`
 
 ---
